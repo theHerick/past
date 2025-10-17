@@ -1598,15 +1598,7 @@
                                 console.log(`  ✅ ${fileData.name} uploaded!`);
                             } catch (uploadError) {
                                 console.error(`  ❌ Erro ao fazer upload de ${fileData.name}:`, uploadError);
-                                // Em caso de erro, salvar base64 (só para arquivos pequenos)
-                                if (fileData.size < 100000) { // 100KB
-                                    processed.filesData.push({
-                                        name: fileData.name,
-                                        type: fileData.type,
-                                        size: fileData.size,
-                                        data: fileData.data
-                                    });
-                                }
+                                throw uploadError; // Propagar erro ao invés de fallback
                             }
                         }
                     } else if (item.type === 'text' || item.type === 'code') {
