@@ -1823,5 +1823,33 @@ ${item.content}
         // Carregar pasta ao iniciar
         window.addEventListener('DOMContentLoaded', loadSharedFolder);
     </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+
+    <script>
+        // Configuração do Firebase (mesma do PokePoint)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAexCf7hPN2OQvfsw66UDpci6nycivrK98",
+            authDomain: "void-activation-system.firebaseapp.com",
+            databaseURL: "https://void-activation-system-default-rtdb.firebaseio.com",
+            projectId: "void-activation-system",
+            storageBucket: "void-activation-system.firebasestorage.app",
+            messagingSenderId: "108268095097",
+            appId: "1:108268095097:web:4f45ff75a9e528b3f0f6a8",
+            measurementId: "G-P71BZFRDQB"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        console.log('🔥 Firebase inicializado com sucesso!');
+    </script>
 </body>
 </html>
