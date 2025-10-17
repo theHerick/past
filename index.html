@@ -1550,6 +1550,29 @@
             const uniqueId = generateUniqueId();
             console.log('🆔 Unique ID:', uniqueId);
             
+            // Processar items para remover objetos File (não serializáveis)
+            const processedItems = folderItems.map(item => {
+                const processed = {
+                    id: item.id,
+                    type: item.type,
+                    name: item.name
+                };
+                
+                if (item.type === 'upload') {
+                    // Usar apenas filesData (base64), não files (objetos File)
+                    processed.filesData = item.filesData || [];
+                } else if (item.type === 'text' || item.type === 'code') {
+                    processed.content = item.content || '';
+                    if (item.type === 'code') {
+                        processed.language = item.language || 'javascript';
+                    }
+                }
+                
+                return processed;
+            });
+            
+            console.log('📦 Processed items:', processedItems);
+            
             const folderData = {
                 id: uniqueId,
                 creatorName: creatorName,
@@ -1558,7 +1581,7 @@
                 password: password || null,
                 createdAt: firebase.firestore.Timestamp.now(),
                 expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + config.validityHours * 60 * 60 * 1000)),
-                items: folderItems,
+                items: processedItems,
                 views: 0
             };
             
