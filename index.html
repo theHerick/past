@@ -1492,6 +1492,10 @@
 
             // Criar pasta
             function createFolder() {
+                console.log('🚀 createFolder chamado!');
+                console.log('📝 Folder items:', folderItems);
+                console.log('📦 Current plan:', currentPlan);
+                
                 const folderName = document.getElementById('folderName').value.trim();
                 
                 if (!folderName) {
@@ -1543,12 +1547,17 @@
 
         // ====== REMOVER FIRESTORE - USAR APENAS LOCALSTORAGE ======        // Salvar pasta no localStorage
         function saveFolderAndShowLink() {
+            console.log('💾 saveFolderAndShowLink chamado!');
+            
             const folderName = document.getElementById('folderName').value;
             const creatorName = document.getElementById('creatorName').value.trim() || 'Anônimo';
             const password = document.getElementById('folderPassword').value;
             const config = planConfigs[currentPlan];
             
+            console.log('📦 Config:', config);
+            
             const uniqueId = generateUniqueId();
+            console.log('🆔 Unique ID:', uniqueId);
             
             const folderData = {
                 id: uniqueId,
@@ -1562,13 +1571,10 @@
                 views: 0
             };
             
+            console.log('📁 Folder data:', folderData);
+            
             // Salvar no localStorage
             localStorage.setItem(`pasta_${uniqueId}`, JSON.stringify(folderData));
-            
-            // Adicionar à lista de pastas do usuário
-            let userFolders = JSON.parse(localStorage.getItem(`user_folders_${currentUser.uid}`) || '[]');
-            userFolders.unshift(uniqueId);
-            localStorage.setItem(`user_folders_${currentUser.uid}`, JSON.stringify(userFolders));
             
             console.log('✅ Pasta salva localmente:', uniqueId);
             
@@ -1666,11 +1672,14 @@
 
             // Mostrar seção do link
             function showLinkSection(uniqueId) {
+                console.log('🔗 showLinkSection chamado com ID:', uniqueId);
+                
                 const folderName = document.getElementById('folderName').value || 'Pasta';
                 const password = document.getElementById('folderPassword').value;
                 const config = planConfigs[currentPlan];
                 
                 const link = `https://theherick.github.io/past/?id=${uniqueId}`;
+                console.log('🔗 Link gerado:', link);
                 
                 const expiryDate = new Date(Date.now() + config.validityHours * 60 * 60 * 1000);
                 
