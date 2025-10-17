@@ -620,31 +620,46 @@
                 padding: 0;
             }
 
-            .code-editor,
-            .text-editor {
-                width: 100%;
-                min-height: 400px;
-                padding: 20px;
-                border: none;
-                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-                font-size: 14px;
-                line-height: 1.6;
-                resize: vertical;
-                background: #fafbfc;
-                color: #24292e;
-            }
+        .code-editor,
+        .text-editor {
+            width: 100%;
+            min-height: 400px;
+            padding: 20px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.8;
+            resize: vertical;
+            transition: all 0.2s;
+            tab-size: 4;
+        }
 
-            .text-editor {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            }
+        .code-editor {
+            font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+        }
 
-            .code-editor:focus,
-            .text-editor:focus {
-                outline: none;
-                background: white;
-            }
+        .text-editor {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            color: #24292e;
+        }
 
-            .files-list {
+        .code-editor:focus {
+            outline: none;
+            background: #161b22;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .text-editor:focus {
+            outline: none;
+            background: white;
+            border-color: #0366d6;
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+        }            .files-list {
                 margin-top: 20px;
             }
 
@@ -1022,11 +1037,6 @@
                     <div id="addItemMenu" style="display: none; margin-top: 20px;">
                         <h3 style="margin-bottom: 15px; color: #2c3e50;">Escolha o tipo de item:</h3>
                         <div class="create-options">
-                            <div class="create-option" onclick="addNewItem('upload')">
-                                <div class="create-option-icon">📤</div>
-                                <div class="create-option-title">Arquivos</div>
-                                <div class="create-option-desc">Upload de arquivos</div>
-                            </div>
                             <div class="create-option" onclick="addNewItem('text')">
                                 <div class="create-option-icon">📝</div>
                                 <div class="create-option-title">Texto</div>
@@ -1035,7 +1045,7 @@
                             <div class="create-option" onclick="addNewItem('code')">
                                 <div class="create-option-icon">💻</div>
                                 <div class="create-option-title">Código</div>
-                                <div class="create-option-desc">Editor de código</div>
+                                <div class="create-option-desc">Editor com syntax highlighting</div>
                             </div>
                         </div>
                     </div>
@@ -1185,11 +1195,7 @@
                     collapsed: false
                 };
 
-                if (type === 'upload') {
-                    item.files = [];
-                    item.filesData = [];
-                    item.name = 'Arquivos';
-                } else if (type === 'text') {
+                if (type === 'text') {
                     item.content = '';
                     item.name = 'Documento de Texto';
                 } else if (type === 'code') {
@@ -1247,25 +1253,12 @@
 
             // Renderizar conteúdo específico do item
             function renderItemContent(item) {
-                if (item.type === 'upload') {
-                    return `
-                        <div class="upload-area" onclick="document.getElementById('fileInput-${item.id}').click()">
-                            <div class="upload-icon">📤</div>
-                            <p class="upload-text">Arraste arquivos ou clique para selecionar</p>
-                            <p class="upload-hint">Suporta múltiplos arquivos</p>
-                            <input type="file" id="fileInput-${item.id}" multiple hidden onchange="handleFileSelect(${item.id}, event)">
-                            <button class="btn-upload" onclick="event.stopPropagation();">
-                                Escolher Arquivos
-                            </button>
-                        </div>
-                        <div class="files-list" id="filesList-${item.id}"></div>
-                    `;
-                } else if (item.type === 'text') {
+                if (item.type === 'text') {
                     return `
                         <textarea 
                             class="text-editor" 
                             id="textEditor-${item.id}" 
-                            placeholder="Comece a escrever..."
+                            placeholder="Comece a escrever seu documento..."
                             oninput="updateItemContent(${item.id}, this.value)"
                         >${item.content || ''}</textarea>
                     `;
@@ -1286,12 +1279,14 @@
                                 <option value="cpp" ${item.language === 'cpp' ? 'selected' : ''}>C++</option>
                                 <option value="csharp" ${item.language === 'csharp' ? 'selected' : ''}>C#</option>
                                 <option value="php" ${item.language === 'php' ? 'selected' : ''}>PHP</option>
+                                <option value="sql" ${item.language === 'sql' ? 'selected' : ''}>SQL</option>
+                                <option value="json" ${item.language === 'json' ? 'selected' : ''}>JSON</option>
                             </select>
                         </div>
                         <textarea 
                             class="code-editor" 
                             id="codeEditor-${item.id}" 
-                            placeholder="// Comece a programar..."
+                            placeholder="// Comece a programar...&#10;console.log('Hello World!');"
                             oninput="updateItemContent(${item.id}, this.value)"
                         >${item.content || ''}</textarea>
                     `;
@@ -1514,17 +1509,11 @@
                 for (let item of folderItems) {
                     console.log(`🔍 Validando item ${item.id}:`, {
                         type: item.type,
-                        hasFiles: item.type === 'upload' ? (item.files?.length || 0) : 'N/A',
-                        hasFilesData: item.type === 'upload' ? (item.filesData?.length || 0) : 'N/A',
-                        contentLength: (item.type === 'text' || item.type === 'code') ? (item.content?.length || 0) : 'N/A'
+                        contentLength: item.content?.length || 0
                     });
                     
-                    if (item.type === 'upload' && (!item.files || item.files.length === 0)) {
-                        alert('Um dos itens de arquivo está vazio. Adicione arquivos ou remova o item.');
-                        return;
-                    }
                     if ((item.type === 'text' || item.type === 'code') && !item.content) {
-                        alert('Um dos itens de texto/código está vazio. Adicione conteúdo ou remova o item.');
+                        alert('Um dos itens está vazio. Adicione conteúdo ou remova o item.');
                         return;
                     }
                 }
@@ -1552,7 +1541,7 @@
             
             try {
                 // Processar items - Upload de arquivos para Storage
-                console.log('🔄 Processando items e fazendo upload...');
+                console.log('🔄 Processando items de texto e código...');
                 
                 const processedItems = [];
                 
@@ -1560,52 +1549,15 @@
                     const processed = {
                         id: item.id,
                         type: item.type,
-                        name: item.name
+                        name: item.name,
+                        content: item.content || ''
                     };
                     
-                    if (item.type === 'upload' && item.filesData && item.filesData.length > 0) {
-                        console.log(`📤 Uploading ${item.filesData.length} arquivo(s)...`);
-                        processed.filesData = [];
-                        
-                        for (const fileData of item.filesData) {
-                            try {
-                                console.log(`  📎 Uploading ${fileData.name}...`);
-                                
-                                // Converter base64 para Blob
-                                const base64Data = fileData.data.split(',')[1];
-                                const byteCharacters = atob(base64Data);
-                                const byteNumbers = new Array(byteCharacters.length);
-                                for (let i = 0; i < byteCharacters.length; i++) {
-                                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                                }
-                                const byteArray = new Uint8Array(byteNumbers);
-                                const blob = new Blob([byteArray], { type: fileData.type });
-                                
-                                // Upload para Storage
-                                const fileName = `${Date.now()}_${fileData.name}`;
-                                const storageRef = storage.ref(`pastas/${uniqueId}/${fileName}`);
-                                
-                                await storageRef.put(blob);
-                                const downloadURL = await storageRef.getDownloadURL();
-                                
-                                processed.filesData.push({
-                                    name: fileData.name,
-                                    type: fileData.type,
-                                    size: fileData.size,
-                                    url: downloadURL
-                                });
-                                
-                                console.log(`  ✅ ${fileData.name} uploaded!`);
-                            } catch (uploadError) {
-                                console.error(`  ❌ Erro ao fazer upload de ${fileData.name}:`, uploadError);
-                                throw uploadError; // Propagar erro ao invés de fallback
-                            }
-                        }
-                    } else if (item.type === 'text' || item.type === 'code') {
-                        processed.content = item.content || '';
-                        if (item.type === 'code') {
-                            processed.language = item.language || 'javascript';
-                        }
+                    if (item.type === 'code') {
+                        processed.language = item.language || 'javascript';
+                        console.log(`💻 Código ${item.name}: ${processed.language}, ${processed.content.length} chars`);
+                    } else if (item.type === 'text') {
+                        console.log(`📝 Texto ${item.name}: ${processed.content.length} chars`);
                     }
                     
                     processedItems.push(processed);
@@ -1654,17 +1606,17 @@
                 
                 document.getElementById('generatedLink').value = link;
                 
-                // Calcular total
-                let totalSize = 0;
+                // Calcular estatísticas
                 let itemCount = folderItems.length;
+                let totalChars = 0;
                 
                 folderItems.forEach(item => {
-                    if (item.type === 'upload' && item.files) {
-                        item.files.forEach(f => totalSize += f.size / (1024 * 1024));
+                    if (item.content) {
+                        totalChars += item.content.length;
                     }
                 });
                 
-                document.getElementById('totalSize').textContent = totalSize > 0 ? totalSize.toFixed(2) + ' MB' : '-';
+                document.getElementById('totalSize').textContent = totalChars > 0 ? (totalChars / 1000).toFixed(1) + 'k chars' : '-';
                 document.getElementById('fileCount').textContent = itemCount + ' item(ns)';
                 document.getElementById('expiryTime').textContent = formatDate(expiryDate);
                 
