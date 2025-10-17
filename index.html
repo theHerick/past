@@ -986,7 +986,7 @@
                 <a href="#" class="nav-link">Planos</a>
                 
                 <!-- Mostrar quando NÃO logado -->
-                <button class="btn-new-folder" id="btnLogin" onclick="showLoginModal()" style="display: none;">
+                <button class="btn-new-folder" id="btnLogin" onclick="showLoginModal()">
                     🔐 Fazer Login
                 </button>
                 
@@ -1255,9 +1255,17 @@
 
         // Mostrar seção de criação
         function showCreateSection() {
+            if (!currentUser) {
+                alert('❌ Você precisa fazer login primeiro!');
+                showLoginModal();
+                return;
+            }
+            
+            console.log('📝 Mostrando seção de criação');
             document.getElementById('heroSection').style.display = 'none';
             document.getElementById('plansSection').style.display = 'none';
             document.getElementById('createSection').style.display = 'block';
+            document.getElementById('myFoldersSection').style.display = 'none';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -2190,7 +2198,24 @@
         };
 
         // Carregar pasta ao iniciar
-        window.addEventListener('DOMContentLoaded', loadSharedFolder);
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página carregada!');
+            
+            // Verificar se há ID de pasta compartilhada na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const folderId = urlParams.get('id');
+            
+            if (folderId) {
+                // Está acessando uma pasta compartilhada
+                console.log('📁 Carregando pasta:', folderId);
+                loadSharedFolder();
+            } else {
+                // Página inicial - mostrar seções
+                console.log('🏠 Página inicial');
+                document.getElementById('heroSection').style.display = 'block';
+                document.getElementById('plansSection').style.display = 'block';
+            }
+        });
 
         // ====== SISTEMA DE AUTENTICAÇÃO COM GOOGLE ======
         
@@ -2209,6 +2234,13 @@
                 document.getElementById('loginModal').classList.remove('active');
                 document.getElementById('linkMinhasPastas').style.display = 'block';
                 
+                // Se não está visualizando uma pasta compartilhada, mostrar hero
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.get('id')) {
+                    document.getElementById('heroSection').style.display = 'block';
+                    document.getElementById('plansSection').style.display = 'block';
+                }
+                
                 // Carregar pastas do usuário
                 loadUserFolders();
             } else {
@@ -2219,6 +2251,14 @@
                 document.getElementById('btnLogin').style.display = 'block';
                 document.getElementById('btnNewFolder').style.display = 'none';
                 document.getElementById('userInfoDiv').style.display = 'none';
+                document.getElementById('linkMinhasPastas').style.display = 'none';
+                
+                // Mostrar hero se não está visualizando pasta
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.get('id')) {
+                    document.getElementById('heroSection').style.display = 'block';
+                    document.getElementById('plansSection').style.display = 'block';
+                }
             }
         });
 
@@ -2230,14 +2270,83 @@
         // Login com Google
         async function loginWithGoogle() {
             try {
+                // Mostrar loading
+                const loginContent = document.querySelector('.login-content');
+                loginContent.innerHTML = `
+                    <div id="loginLoading">
+                        <h2 style="color: #2c3e50; margin-bottom: 15px;">🔄 Redirecionando...</h2>
+                        <p style="color: #586069; margin-bottom: 20px;">
+                            Você será redirecionado para fazer login com sua conta Google.
+                        </p>
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0366d6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        </div>
+                    </div>
+                    <style>
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    </style>
+                `;
+                
                 const provider = new firebase.auth.GoogleAuthProvider();
-                await auth.signInWithPopup(provider);
-                alert('✅ Login realizado com sucesso!');
+                
+                // Usar redirect ao invés de popup (melhor para GitHub Pages)
+                await auth.signInWithRedirect(provider);
+                
             } catch (error) {
                 console.error('Erro no login:', error);
-                alert('❌ Erro ao fazer login: ' + error.message);
+                
+                // Restaurar conteúdo original
+                location.reload();
+                
+                // Mensagem mais detalhada sobre domínio não autorizado
+                if (error.code === 'auth/unauthorized-domain') {
+                    alert(`❌ Domínio não autorizado!\n\n` +
+                          `Por favor, adicione este domínio no Firebase Console:\n` +
+                          `${window.location.hostname}\n\n` +
+                          `Passos:\n` +
+                          `1. Acesse: https://console.firebase.google.com/\n` +
+                          `2. Selecione o projeto "void-activation-system"\n` +
+                          `3. Vá em Authentication > Settings > Authorized domains\n` +
+                          `4. Adicione: ${window.location.hostname}`);
+                } else {
+                    alert('❌ Erro ao fazer login: ' + error.message);
+                }
             }
         }
+
+        // Verificar resultado do redirect após login
+        auth.getRedirectResult().then((result) => {
+            if (result.user) {
+                console.log('✅ Login com redirect bem-sucedido!');
+                console.log('👤 Usuário:', result.user.displayName || result.user.email);
+                
+                // Remover qualquer loading
+                const loading = document.getElementById('loginLoading');
+                if (loading) loading.remove();
+                
+                // Mostrar mensagem de boas-vindas
+                setTimeout(() => {
+                    alert(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!\n\nVocê já pode criar suas pastas compartilhadas na nuvem! 🚀`);
+                }, 500);
+            }
+        }).catch((error) => {
+            if (error.code && error.code !== 'auth/popup-closed-by-user') {
+                console.error('Erro no redirect:', error);
+                
+                const loading = document.getElementById('loginLoading');
+                if (loading) loading.remove();
+                
+                if (error.code === 'auth/unauthorized-domain') {
+                    alert(`❌ Domínio não autorizado!\n\n` +
+                          `Por favor, adicione este domínio no Firebase Console:\n` +
+                          `${window.location.hostname}\n\n` +
+                          `Veja o arquivo CONFIGURAR_FIREBASE.md para instruções.`);
+                }
+            }
+        });
 
         // Logout
         async function logoutUser() {
