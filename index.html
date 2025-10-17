@@ -1255,17 +1255,40 @@
 
         // Mostrar seção de criação
         function showCreateSection() {
+            console.log('📝 showCreateSection chamado, usuário:', currentUser ? currentUser.email : 'não logado');
+            
             if (!currentUser) {
-                alert('❌ Você precisa fazer login primeiro!');
+                console.log('❌ Usuário não logado, mostrando modal');
+                alert('❌ Faça login para criar pastas compartilhadas na nuvem! 🔐');
                 showLoginModal();
                 return;
             }
             
-            console.log('📝 Mostrando seção de criação');
+            // Se não tem plano selecionado, selecionar o grátis automaticamente
+            if (!currentPlan) {
+                console.log('📌 Nenhum plano selecionado, selecionando Grátis automaticamente');
+                currentPlan = 'free';
+                maxSize = 100;
+                
+                const config = planConfigs['free'];
+                document.getElementById('selectedPlan').textContent = config.name;
+                document.getElementById('sizeLimit').textContent = '100 MB';
+                document.getElementById('validity').textContent = config.validity;
+                document.getElementById('passwordSection').style.display = 'none';
+            }
+            
+            console.log('✅ Mostrando seção de criação com plano:', currentPlan);
             document.getElementById('heroSection').style.display = 'none';
             document.getElementById('plansSection').style.display = 'none';
             document.getElementById('createSection').style.display = 'block';
             document.getElementById('myFoldersSection').style.display = 'none';
+            document.getElementById('linkSection').style.display = 'none';
+            
+            // Reset items se necessário
+            if (folderItems.length === 0) {
+                renderFolderItems();
+            }
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1527,6 +1550,14 @@
 
         // Selecionar plano
         function selectPlan(planType, sizeLimit) {
+            console.log('📦 selectPlan chamado:', planType, 'usuário:', currentUser ? currentUser.email : 'não logado');
+            
+            if (!currentUser) {
+                alert('❌ Faça login primeiro para escolher um plano!');
+                showLoginModal();
+                return;
+            }
+            
             currentPlan = planType;
             maxSize = sizeLimit;
             
@@ -1543,7 +1574,13 @@
                 passwordSection.style.display = 'none';
             }
             
-            showCreateSection();
+            // Mostrar seção de criação (sem verificar login de novo)
+            console.log('✅ Mostrando seção de criação');
+            document.getElementById('heroSection').style.display = 'none';
+            document.getElementById('plansSection').style.display = 'none';
+            document.getElementById('createSection').style.display = 'block';
+            document.getElementById('myFoldersSection').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             
             // Reset items
             folderItems = [];
@@ -2221,9 +2258,13 @@
         
         // Monitorar estado de autenticação
         auth.onAuthStateChanged(user => {
+            console.log('🔄 Auth state changed:', user ? user.email : 'não logado');
+            
             if (user) {
                 currentUser = user;
                 console.log('✅ Usuário logado:', user.email);
+                console.log('👤 Nome:', user.displayName);
+                console.log('📸 Avatar:', user.photoURL);
                 
                 // Atualizar UI
                 document.getElementById('btnLogin').style.display = 'none';
@@ -2234,9 +2275,12 @@
                 document.getElementById('loginModal').classList.remove('active');
                 document.getElementById('linkMinhasPastas').style.display = 'block';
                 
+                console.log('🎨 UI atualizada - usuário logado');
+                
                 // Se não está visualizando uma pasta compartilhada, mostrar hero
                 const urlParams = new URLSearchParams(window.location.search);
                 if (!urlParams.get('id')) {
+                    console.log('🏠 Mostrando página inicial');
                     document.getElementById('heroSection').style.display = 'block';
                     document.getElementById('plansSection').style.display = 'block';
                 }
@@ -2253,9 +2297,12 @@
                 document.getElementById('userInfoDiv').style.display = 'none';
                 document.getElementById('linkMinhasPastas').style.display = 'none';
                 
+                console.log('🎨 UI atualizada - usuário deslogado');
+                
                 // Mostrar hero se não está visualizando pasta
                 const urlParams = new URLSearchParams(window.location.search);
                 if (!urlParams.get('id')) {
+                    console.log('🏠 Mostrando página inicial');
                     document.getElementById('heroSection').style.display = 'block';
                     document.getElementById('plansSection').style.display = 'block';
                 }
