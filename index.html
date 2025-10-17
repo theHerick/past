@@ -1522,29 +1522,10 @@
                     }
                 }
                 
-                const uploadProgress = document.getElementById('uploadProgress');
-                const progressFill = document.getElementById('progressFill');
-                const progressText = document.getElementById('progressText');
-                const btnCreate = document.getElementById('btnCreate');
+                console.log('✅ Validação passou! Salvando pasta...');
                 
-                uploadProgress.style.display = 'block';
-                btnCreate.disabled = true;
-                
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += Math.random() * 15;
-                    if (progress > 100) progress = 100;
-                    
-                    progressFill.style.width = progress + '%';
-                    progressText.textContent = Math.round(progress) + '%';
-                    
-                    if (progress === 100) {
-                        clearInterval(interval);
-                        setTimeout(() => {
-                            saveFolderAndShowLink();
-                        }, 500);
-                    }
-                }, 200);
+                // Salvar diretamente
+                saveFolderAndShowLink();
             }
 
         // ====== REMOVER FIRESTORE - USAR APENAS LOCALSTORAGE ======        // Salvar pasta no localStorage
