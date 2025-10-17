@@ -1551,60 +1551,64 @@
             console.log('🆔 Unique ID:', uniqueId);
             
             try {
-                // Processar items - Upload de arquivos para Storage, textos direto
-                console.log('🔄 Processando items...');
-                const processedItems = await Promise.all(folderItems.map(async (item) => {
+                // Processar items - Upload de arquivos para Storage
+                console.log('🔄 Processando items e fazendo upload...');
+                
+                const processedItems = [];
+                
+                for (const item of folderItems) {
                     const processed = {
                         id: item.id,
                         type: item.type,
                         name: item.name
                     };
                     
-                    if (item.type === 'upload') {
-                        console.log('📤 Fazendo upload de arquivos para Storage...');
-                        // Upload de arquivos para Firebase Storage
-                        const uploadedFiles = [];
+                    if (item.type === 'upload' && item.filesData && item.filesData.length > 0) {
+                        console.log(`📤 Uploading ${item.filesData.length} arquivo(s)...`);
+                        processed.filesData = [];
                         
-                        for (const fileData of (item.filesData || [])) {
+                        for (const fileData of item.filesData) {
                             try {
-                                console.log(`📎 Uploading ${fileData.name}...`);
+                                console.log(`  📎 Uploading ${fileData.name}...`);
                                 
                                 // Converter base64 para Blob
-                                const response = await fetch(fileData.data);
-                                const blob = await response.blob();
+                                const base64Data = fileData.data.split(',')[1];
+                                const byteCharacters = atob(base64Data);
+                                const byteNumbers = new Array(byteCharacters.length);
+                                for (let i = 0; i < byteCharacters.length; i++) {
+                                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                }
+                                const byteArray = new Uint8Array(byteNumbers);
+                                const blob = new Blob([byteArray], { type: fileData.type });
                                 
-                                // Criar referência no Storage
-                                const filePath = `pastas/${uniqueId}/${Date.now()}_${fileData.name}`;
-                                const storageRef = storage.ref(filePath);
+                                // Upload para Storage
+                                const fileName = `${Date.now()}_${fileData.name}`;
+                                const storageRef = storage.ref(`pastas/${uniqueId}/${fileName}`);
                                 
-                                // Upload
                                 await storageRef.put(blob);
-                                
-                                // Obter URL de download
                                 const downloadURL = await storageRef.getDownloadURL();
                                 
-                                uploadedFiles.push({
+                                processed.filesData.push({
                                     name: fileData.name,
                                     type: fileData.type,
                                     size: fileData.size,
-                                    url: downloadURL,
-                                    path: filePath
+                                    url: downloadURL
                                 });
                                 
-                                console.log(`✅ ${fileData.name} uploaded!`);
-                            } catch (error) {
-                                console.error(`❌ Erro ao fazer upload de ${fileData.name}:`, error);
-                                // Se falhar, usa base64 como fallback
-                                uploadedFiles.push({
-                                    name: fileData.name,
-                                    type: fileData.type,
-                                    size: fileData.size,
-                                    data: fileData.data
-                                });
+                                console.log(`  ✅ ${fileData.name} uploaded!`);
+                            } catch (uploadError) {
+                                console.error(`  ❌ Erro ao fazer upload de ${fileData.name}:`, uploadError);
+                                // Em caso de erro, salvar base64 (só para arquivos pequenos)
+                                if (fileData.size < 100000) { // 100KB
+                                    processed.filesData.push({
+                                        name: fileData.name,
+                                        type: fileData.type,
+                                        size: fileData.size,
+                                        data: fileData.data
+                                    });
+                                }
                             }
                         }
-                        
-                        processed.filesData = uploadedFiles;
                     } else if (item.type === 'text' || item.type === 'code') {
                         processed.content = item.content || '';
                         if (item.type === 'code') {
@@ -1612,36 +1616,27 @@
                         }
                     }
                     
-                    return processed;
-                }));
+                    processedItems.push(processed);
+                }
                 
                 console.log('✅ Items processados:', processedItems);
                 
+                // Criar documento no Firestore
                 const folderData = {
                     id: uniqueId,
                     creatorName: creatorName,
                     name: folderName,
                     plan: currentPlan,
                     password: password || null,
-                    createdAt: firebase.firestore.Timestamp.now(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + config.validityHours * 60 * 60 * 1000)),
                     items: processedItems,
                     views: 0
                 };
                 
-                console.log('📁 Folder data para Firestore:', folderData);
-                
-                // Salvar no Firestore
-                console.log('☁️ Salvando no Firestore...');
+                console.log('� Salvando no Firestore...');
                 await db.collection('pastas').doc(uniqueId).set(folderData);
-                console.log('✅ Pasta salva no Firestore com sucesso!');
-                
-                // Backup no localStorage
-                localStorage.setItem(`pasta_${uniqueId}`, JSON.stringify({
-                    ...folderData,
-                    createdAt: folderData.createdAt.toDate().toISOString(),
-                    expiresAt: folderData.expiresAt.toDate().toISOString()
-                }));
+                console.log('✅ Pasta salva no Firestore!');
                 
                 // Mostrar link
                 showLinkSection(uniqueId);
@@ -1650,95 +1645,7 @@
                 console.error('❌ Erro ao salvar:', error);
                 alert('❌ Erro ao salvar pasta: ' + error.message);
             }
-        }            // ====== SALVAR NO FIRESTORE (NUVEM) ======
-            async function saveFolderToFirestore() {
-                const folderName = document.getElementById('folderName').value;
-                const password = document.getElementById('folderPassword').value;
-                const config = planConfigs[currentPlan];
-                
-                const uniqueId = generateUniqueId();
-                
-                try {
-                    // Upload de arquivos para o Firebase Storage (se houver)
-                    const processedItems = await Promise.all(folderItems.map(async item => {
-                        if (item.type === 'upload' && item.filesData && item.filesData.length > 0) {
-                            const uploadedFiles = await Promise.all(item.filesData.map(async file => {
-                                try {
-                                    // Criar referência no Storage
-                                    const storageRef = storage.ref(`pastas/${currentUser.uid}/${uniqueId}/${file.name}`);
-                                    
-                                    // Converter base64 para blob
-                                    const response = await fetch(file.data);
-                                    const blob = await response.blob();
-                                    
-                                    // Upload do arquivo
-                                    await storageRef.put(blob);
-                                    
-                                    // Obter URL de download
-                                    const downloadURL = await storageRef.getDownloadURL();
-                                    
-                                    return {
-                                        name: file.name,
-                                        type: file.type,
-                                        size: file.size,
-                                        url: downloadURL
-                                    };
-                                } catch (error) {
-                                    console.error('Erro ao fazer upload:', error);
-                                    return {
-                                        name: file.name,
-                                        type: file.type,
-                                        size: file.size,
-                                        data: file.data // Fallback para base64
-                                    };
-                                }
-                            }));
-                            
-                            return {
-                                ...item,
-                                filesData: uploadedFiles,
-                                files: undefined // Remover objeto File
-                            };
-                        }
-                        return {
-                            ...item,
-                            files: undefined // Remover objeto File
-                        };
-                    }));
-
-                    const folderData = {
-                        id: uniqueId,
-                        userId: currentUser.uid,
-                        userEmail: currentUser.email,
-                        userName: currentUser.displayName || currentUser.email,
-                        name: folderName,
-                        plan: currentPlan,
-                        password: password || null,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        expiresAt: new Date(Date.now() + config.validityHours * 60 * 60 * 1000),
-                        items: processedItems,
-                        views: 0,
-                        isPublic: true
-                    };
-                    
-                    // Salvar no Firestore
-                    await db.collection('pastas').doc(uniqueId).set(folderData);
-                    
-                    console.log('✅ Pasta salva no Firestore:', uniqueId);
-                    alert('✅ Pasta criada e salva na nuvem com sucesso!');
-                    
-                    // Mostrar link
-                    showLinkSection(uniqueId);
-                    
-                } catch (error) {
-                    console.error('❌ Erro ao salvar pasta:', error);
-                    alert('❌ Erro ao criar pasta: ' + error.message);
-                    
-                    // Re-habilitar botão
-                    document.getElementById('btnCreate').disabled = false;
-                    document.getElementById('uploadProgress').style.display = 'none';
-                }
-            }
+        }
 
             // Mostrar seção do link
             function showLinkSection(uniqueId) {
@@ -1860,7 +1767,7 @@
                 if (!folderId) return;
                 
                 try {
-                    // Tentar carregar do Firestore primeiro
+                    // Carregar do Firestore
                     console.log('☁️ Buscando no Firestore...');
                     const docRef = db.collection('pastas').doc(folderId);
                     const doc = await docRef.get();
@@ -1868,9 +1775,7 @@
                     console.log('📄 Documento existe?', doc.exists);
                     
                     if (!doc.exists) {
-                        console.log('❌ Não encontrado no Firestore, tentando localStorage...');
-                        // Fallback para localStorage
-                        loadFromLocalStorage(folderId);
+                        alert('❌ Pasta não encontrada!');
                         return;
                     }
                     
@@ -1883,7 +1788,6 @@
                     
                     if (now > expiryDate) {
                         alert('Esta pasta expirou!');
-                        // Deletar pasta expirada
                         await docRef.delete();
                         return;
                     }
@@ -1897,6 +1801,12 @@
                         }
                     }
                     
+                    // Perguntar nome do visitante (opcional)
+                    const visitorName = prompt('Qual seu nome? (opcional para se identificar)', '');
+                    if (visitorName && visitorName.trim()) {
+                        console.log('👤 Visitante:', visitorName.trim());
+                    }
+                    
                     // Incrementar visualizações
                     await docRef.update({
                         views: firebase.firestore.FieldValue.increment(1)
@@ -1907,50 +1817,8 @@
                     
                 } catch (error) {
                     console.error('❌ Erro ao carregar pasta:', error);
-                    // Fallback para localStorage
-                    loadFromLocalStorage(folderId);
+                    alert('❌ Erro ao carregar pasta: ' + error.message);
                 }
-            }
-
-            // Carregar do localStorage (fallback)
-            function loadFromLocalStorage(folderId) {
-                const folderData = localStorage.getItem(`pasta_${folderId}`);
-                
-                if (!folderData) {
-                    alert('Pasta não encontrada ou expirada!');
-                    return;
-                }
-                
-                const folder = JSON.parse(folderData);
-                
-                // Verificar se expirou
-                const now = new Date();
-                const expiryDate = new Date(folder.expiresAt);
-                
-                if (now > expiryDate) {
-                    localStorage.removeItem(`pasta_${folderId}`);
-                    alert('Esta pasta expirou!');
-                    return;
-                }
-                
-                // Verificar senha
-                if (folder.password) {
-                    const inputPassword = prompt('Esta pasta é protegida por senha:');
-                    if (inputPassword !== folder.password) {
-                        alert('Senha incorreta!');
-                        return;
-                    }
-                }
-                
-                // Perguntar nome do visitante (opcional)
-                const visitorName = prompt('Qual seu nome? (opcional para se identificar)', '');
-                if (visitorName && visitorName.trim()) {
-                    // Pode ser usado futuramente para registrar quem acessou
-                    console.log('👤 Visitante:', visitorName.trim());
-                }
-                
-                // Renderizar pasta
-                renderSharedFolder(folder);
             }
 
             // Renderizar pasta compartilhada
