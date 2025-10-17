@@ -1495,7 +1495,7 @@
             // Criar pasta
             function createFolder() {
                 console.log('🚀 createFolder chamado!');
-                console.log('📝 Folder items:', folderItems);
+                console.log('📝 Folder items (antes da validação):', JSON.parse(JSON.stringify(folderItems)));
                 console.log('📦 Current plan:', currentPlan);
                 
                 const folderName = document.getElementById('folderName').value.trim();
@@ -1512,6 +1512,13 @@
                 
                 // Validar conteúdo dos itens
                 for (let item of folderItems) {
+                    console.log(`🔍 Validando item ${item.id}:`, {
+                        type: item.type,
+                        hasFiles: item.type === 'upload' ? (item.files?.length || 0) : 'N/A',
+                        hasFilesData: item.type === 'upload' ? (item.filesData?.length || 0) : 'N/A',
+                        contentLength: (item.type === 'text' || item.type === 'code') ? (item.content?.length || 0) : 'N/A'
+                    });
+                    
                     if (item.type === 'upload' && (!item.files || item.files.length === 0)) {
                         alert('Um dos itens de arquivo está vazio. Adicione arquivos ou remova o item.');
                         return;
@@ -1523,6 +1530,7 @@
                 }
                 
                 console.log('✅ Validação passou! Salvando pasta...');
+                console.log('📦 Items finais que serão salvos:', JSON.parse(JSON.stringify(folderItems)));
                 
                 // Salvar diretamente
                 saveFolderAndShowLink();
