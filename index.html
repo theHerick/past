@@ -1528,8 +1528,8 @@
                 saveFolderAndShowLink();
             }
 
-        // ====== REMOVER FIRESTORE - USAR APENAS LOCALSTORAGE ======        // Salvar pasta no localStorage
-        function saveFolderAndShowLink() {
+        // ====== SALVAR NO FIRESTORE (NUVEM) ======
+        async function saveFolderAndShowLink() {
             console.log('💾 saveFolderAndShowLink chamado!');
             
             const folderName = document.getElementById('folderName').value;
@@ -1548,21 +1548,33 @@
                 name: folderName,
                 plan: currentPlan,
                 password: password || null,
-                createdAt: new Date().toISOString(),
-                expiresAt: new Date(Date.now() + config.validityHours * 60 * 60 * 1000).toISOString(),
+                createdAt: firebase.firestore.Timestamp.now(),
+                expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + config.validityHours * 60 * 60 * 1000)),
                 items: folderItems,
                 views: 0
             };
             
             console.log('📁 Folder data:', folderData);
             
-            // Salvar no localStorage
-            localStorage.setItem(`pasta_${uniqueId}`, JSON.stringify(folderData));
-            
-            console.log('✅ Pasta salva localmente:', uniqueId);
-            
-            // Mostrar link
-            showLinkSection(uniqueId);
+            try {
+                // Salvar no Firestore
+                console.log('☁️ Salvando no Firestore...');
+                await db.collection('pastas').doc(uniqueId).set(folderData);
+                console.log('✅ Pasta salva no Firestore com sucesso!');
+                
+                // Também salvar no localStorage como backup
+                localStorage.setItem(`pasta_${uniqueId}`, JSON.stringify({
+                    ...folderData,
+                    createdAt: folderData.createdAt.toDate().toISOString(),
+                    expiresAt: folderData.expiresAt.toDate().toISOString()
+                }));
+                
+                // Mostrar link
+                showLinkSection(uniqueId);
+            } catch (error) {
+                console.error('❌ Erro ao salvar no Firestore:', error);
+                alert('❌ Erro ao salvar pasta: ' + error.message);
+            }
         }            // ====== SALVAR NO FIRESTORE (NUVEM) ======
             async function saveFolderToFirestore() {
                 const folderName = document.getElementById('folderName').value;
@@ -1768,20 +1780,27 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const folderId = urlParams.get('id');
                 
+                console.log('🔍 Tentando carregar pasta ID:', folderId);
+                
                 if (!folderId) return;
                 
                 try {
                     // Tentar carregar do Firestore primeiro
+                    console.log('☁️ Buscando no Firestore...');
                     const docRef = db.collection('pastas').doc(folderId);
                     const doc = await docRef.get();
                     
+                    console.log('📄 Documento existe?', doc.exists);
+                    
                     if (!doc.exists) {
+                        console.log('❌ Não encontrado no Firestore, tentando localStorage...');
                         // Fallback para localStorage
                         loadFromLocalStorage(folderId);
                         return;
                     }
                     
                     const folder = doc.data();
+                    console.log('✅ Pasta carregada do Firestore:', folder);
                     
                     // Verificar se expirou
                     const now = new Date();
