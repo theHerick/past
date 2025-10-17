@@ -306,6 +306,107 @@
             background: #f1f8ff;
         }
 
+        /* Items da Pasta */
+        .folder-items {
+            margin-top: 25px;
+        }
+
+        .folder-item {
+            background: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .folder-item-header {
+            background: #f6f8fa;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .folder-item-header:hover {
+            background: #e1e4e8;
+        }
+
+        .folder-item-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .folder-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-toggle {
+            background: none;
+            border: none;
+            color: #586069;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .btn-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .btn-delete-item {
+            background: #d73a49;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.2s;
+        }
+
+        .btn-delete-item:hover {
+            background: #cb2431;
+        }
+
+        .folder-item-content {
+            padding: 15px;
+            border-top: 1px solid #e1e4e8;
+        }
+
+        .folder-item-content.collapsed {
+            display: none;
+        }
+
+        .btn-add-item {
+            width: 100%;
+            padding: 12px;
+            background: #0366d6;
+            color: white;
+            border: 2px dashed #0366d6;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+
+        .btn-add-item:hover {
+            background: #0256c7;
+            border-color: #0256c7;
+        }
+
         .create-option-icon {
             font-size: 2em;
             margin-bottom: 10px;
@@ -850,25 +951,6 @@
         <section class="create-section" id="createSection" style="display: none;">
             <h2>Criar Nova Pasta Compartilhada</h2>
             
-            <div class="create-options">
-                <div class="create-option" onclick="selectCreateType('upload')">
-                    <div class="create-option-icon">📤</div>
-                    <div class="create-option-title">Upload de Arquivos</div>
-                    <div class="create-option-desc">Envie e compartilhe arquivos</div>
-                </div>
-                <div class="create-option" onclick="selectCreateType('text')">
-                    <div class="create-option-icon">📝</div>
-                    <div class="create-option-title">Documento de Texto</div>
-                    <div class="create-option-desc">Crie e edite textos juntos</div>
-                </div>
-                <div class="create-option" onclick="selectCreateType('code')">
-                    <div class="create-option-icon">💻</div>
-                    <div class="create-option-title">Editor de Código</div>
-                    <div class="create-option-desc">Programe colaborativamente</div>
-                </div>
-            </div>
-
-            <!-- Área de Conteúdo -->
             <div class="upload-container">
                 <div class="folder-info">
                     <div class="info-row">
@@ -895,65 +977,36 @@
                     <input type="password" id="folderPassword" placeholder="Digite uma senha">
                 </div>
 
-                <!-- Upload Area -->
-                <div id="uploadArea" style="display: none;">
-                    <div class="upload-area">
-                        <div class="upload-icon">📤</div>
-                        <p class="upload-text">Arraste arquivos ou clique para selecionar</p>
-                        <p class="upload-hint">Suporta múltiplos arquivos</p>
-                        <input type="file" id="fileInput" multiple hidden>
-                        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
-                            Escolher Arquivos
-                        </button>
-                    </div>
-                    <div class="files-list" id="filesList"></div>
+                <!-- Itens da Pasta -->
+                <div class="folder-items" id="folderItems">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Itens da Pasta:</h3>
+                    <div id="itemsList"></div>
+                    
+                    <button class="btn-add-item" onclick="showAddItemMenu()">
+                        ➕ Adicionar Item
+                    </button>
                 </div>
 
-                <!-- Text Editor -->
-                <div id="textEditorArea" class="editor-section" style="display: none;">
-                    <div class="editor-header">
-                        <span class="editor-title">📝 Editor de Texto</span>
-                        <div class="editor-actions">
-                            <select class="editor-lang-select" id="textFormat">
-                                <option value="text">Texto Simples</option>
-                                <option value="markdown">Markdown</option>
-                            </select>
+                <!-- Menu de Adicionar Item -->
+                <div id="addItemMenu" style="display: none; margin-top: 20px;">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Escolha o tipo de item:</h3>
+                    <div class="create-options">
+                        <div class="create-option" onclick="addNewItem('upload')">
+                            <div class="create-option-icon">📤</div>
+                            <div class="create-option-title">Arquivos</div>
+                            <div class="create-option-desc">Upload de arquivos</div>
+                        </div>
+                        <div class="create-option" onclick="addNewItem('text')">
+                            <div class="create-option-icon">📝</div>
+                            <div class="create-option-title">Texto</div>
+                            <div class="create-option-desc">Documento de texto</div>
+                        </div>
+                        <div class="create-option" onclick="addNewItem('code')">
+                            <div class="create-option-icon">💻</div>
+                            <div class="create-option-title">Código</div>
+                            <div class="create-option-desc">Editor de código</div>
                         </div>
                     </div>
-                    <div class="editor-content">
-                        <textarea class="text-editor" id="textEditor" placeholder="Comece a escrever..."></textarea>
-                    </div>
-                </div>
-
-                <!-- Code Editor -->
-                <div id="codeEditorArea" class="editor-section" style="display: none;">
-                    <div class="editor-header">
-                        <span class="editor-title">💻 Editor de Código</span>
-                        <div class="editor-actions">
-                            <select class="editor-lang-select" id="codeLanguage">
-                                <option value="javascript">JavaScript</option>
-                                <option value="python">Python</option>
-                                <option value="html">HTML</option>
-                                <option value="css">CSS</option>
-                                <option value="java">Java</option>
-                                <option value="cpp">C++</option>
-                                <option value="csharp">C#</option>
-                                <option value="php">PHP</option>
-                                <option value="ruby">Ruby</option>
-                                <option value="go">Go</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="editor-content">
-                        <textarea class="code-editor" id="codeEditor" placeholder="// Comece a programar..."></textarea>
-                    </div>
-                </div>
-
-                <div class="upload-progress" id="uploadProgress" style="display: none;">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <p class="progress-text" id="progressText">0%</p>
                 </div>
 
                 <button class="btn-create" id="btnCreate" onclick="createFolder()">
@@ -1027,10 +1080,8 @@
         // Estado da aplicação
         let currentPlan = null;
         let maxSize = 0;
-        let selectedFiles = [];
-        let totalFileSize = 0;
-        let currentCreateType = 'upload';
-        let filesDataUrls = [];
+        let folderItems = []; // Array para armazenar todos os itens da pasta
+        let itemIdCounter = 0; // Contador para IDs únicos dos itens
 
         // Configurações dos planos
         const planConfigs = {
@@ -1065,28 +1116,259 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Selecionar tipo de criação
-        function selectCreateType(type) {
-            currentCreateType = type;
+        // Mostrar menu de adicionar item
+        function showAddItemMenu() {
+            const menu = document.getElementById('addItemMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Adicionar novo item à pasta
+        function addNewItem(type) {
+            const itemId = itemIdCounter++;
             
-            // Atualizar visual das opções
-            document.querySelectorAll('.create-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
-            event.target.closest('.create-option').classList.add('active');
-            
-            // Esconder todas as áreas
-            document.getElementById('uploadArea').style.display = 'none';
-            document.getElementById('textEditorArea').style.display = 'none';
-            document.getElementById('codeEditorArea').style.display = 'none';
-            
-            // Mostrar área correspondente
+            const item = {
+                id: itemId,
+                type: type,
+                collapsed: false
+            };
+
             if (type === 'upload') {
-                document.getElementById('uploadArea').style.display = 'block';
+                item.files = [];
+                item.filesData = [];
+                item.name = 'Arquivos';
             } else if (type === 'text') {
-                document.getElementById('textEditorArea').style.display = 'block';
+                item.content = '';
+                item.name = 'Documento de Texto';
             } else if (type === 'code') {
-                document.getElementById('codeEditorArea').style.display = 'block';
+                item.content = '';
+                item.language = 'javascript';
+                item.name = 'Código';
+            }
+
+            folderItems.push(item);
+            renderFolderItems();
+            
+            // Esconder menu
+            document.getElementById('addItemMenu').style.display = 'none';
+        }
+
+        // Renderizar itens da pasta
+        function renderFolderItems() {
+            const itemsList = document.getElementById('itemsList');
+            
+            if (folderItems.length === 0) {
+                itemsList.innerHTML = '<p style="color: #586069; text-align: center; padding: 20px;">Nenhum item adicionado ainda</p>';
+                return;
+            }
+
+            itemsList.innerHTML = '';
+
+            folderItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'folder-item';
+                
+                const icon = item.type === 'upload' ? '📤' : item.type === 'text' ? '📝' : '💻';
+                
+                itemDiv.innerHTML = `
+                    <div class="folder-item-header" onclick="toggleItem(${item.id})">
+                        <div class="folder-item-title">
+                            <button class="btn-toggle ${item.collapsed ? 'collapsed' : ''}" id="toggle-${item.id}">
+                                ▼
+                            </button>
+                            <span>${icon} ${item.name}</span>
+                        </div>
+                        <div class="folder-item-actions">
+                            <button class="btn-delete-item" onclick="event.stopPropagation(); deleteItem(${item.id})">
+                                🗑️ Remover
+                            </button>
+                        </div>
+                    </div>
+                    <div class="folder-item-content ${item.collapsed ? 'collapsed' : ''}" id="content-${item.id}">
+                        ${renderItemContent(item)}
+                    </div>
+                `;
+                
+                itemsList.appendChild(itemDiv);
+            });
+        }
+
+        // Renderizar conteúdo específico do item
+        function renderItemContent(item) {
+            if (item.type === 'upload') {
+                return `
+                    <div class="upload-area" onclick="document.getElementById('fileInput-${item.id}').click()">
+                        <div class="upload-icon">📤</div>
+                        <p class="upload-text">Arraste arquivos ou clique para selecionar</p>
+                        <p class="upload-hint">Suporta múltiplos arquivos</p>
+                        <input type="file" id="fileInput-${item.id}" multiple hidden onchange="handleFileSelect(${item.id}, event)">
+                        <button class="btn-upload" onclick="event.stopPropagation();">
+                            Escolher Arquivos
+                        </button>
+                    </div>
+                    <div class="files-list" id="filesList-${item.id}"></div>
+                `;
+            } else if (item.type === 'text') {
+                return `
+                    <textarea 
+                        class="text-editor" 
+                        id="textEditor-${item.id}" 
+                        placeholder="Comece a escrever..."
+                        oninput="updateItemContent(${item.id}, this.value)"
+                    >${item.content || ''}</textarea>
+                `;
+            } else if (item.type === 'code') {
+                return `
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <label style="font-weight: 500; color: #2c3e50;">Linguagem:</label>
+                        <select 
+                            class="editor-lang-select" 
+                            id="codeLang-${item.id}"
+                            onchange="updateItemLanguage(${item.id}, this.value)"
+                        >
+                            <option value="javascript" ${item.language === 'javascript' ? 'selected' : ''}>JavaScript</option>
+                            <option value="python" ${item.language === 'python' ? 'selected' : ''}>Python</option>
+                            <option value="html" ${item.language === 'html' ? 'selected' : ''}>HTML</option>
+                            <option value="css" ${item.language === 'css' ? 'selected' : ''}>CSS</option>
+                            <option value="java" ${item.language === 'java' ? 'selected' : ''}>Java</option>
+                            <option value="cpp" ${item.language === 'cpp' ? 'selected' : ''}>C++</option>
+                            <option value="csharp" ${item.language === 'csharp' ? 'selected' : ''}>C#</option>
+                            <option value="php" ${item.language === 'php' ? 'selected' : ''}>PHP</option>
+                        </select>
+                    </div>
+                    <textarea 
+                        class="code-editor" 
+                        id="codeEditor-${item.id}" 
+                        placeholder="// Comece a programar..."
+                        oninput="updateItemContent(${item.id}, this.value)"
+                    >${item.content || ''}</textarea>
+                `;
+            }
+        }
+
+        // Toggle item expandido/colapsado
+        function toggleItem(itemId) {
+            const item = folderItems.find(i => i.id === itemId);
+            if (item) {
+                item.collapsed = !item.collapsed;
+                const contentDiv = document.getElementById(`content-${itemId}`);
+                const toggleBtn = document.getElementById(`toggle-${itemId}`);
+                
+                if (item.collapsed) {
+                    contentDiv.classList.add('collapsed');
+                    toggleBtn.classList.add('collapsed');
+                } else {
+                    contentDiv.classList.remove('collapsed');
+                    toggleBtn.classList.remove('collapsed');
+                }
+            }
+        }
+
+        // Deletar item
+        function deleteItem(itemId) {
+            if (confirm('Remover este item?')) {
+                folderItems = folderItems.filter(i => i.id !== itemId);
+                renderFolderItems();
+            }
+        }
+
+        // Atualizar conteúdo do item
+        function updateItemContent(itemId, content) {
+            const item = folderItems.find(i => i.id === itemId);
+            if (item) {
+                item.content = content;
+            }
+        }
+
+        // Atualizar linguagem do código
+        function updateItemLanguage(itemId, language) {
+            const item = folderItems.find(i => i.id === itemId);
+            if (item) {
+                item.language = language;
+            }
+        }
+
+        // Processar seleção de arquivos
+        function handleFileSelect(itemId, event) {
+            const files = Array.from(event.target.files);
+            const item = folderItems.find(i => i.id === itemId);
+            
+            if (!item) return;
+
+            files.forEach(file => {
+                const fileSizeMB = file.size / (1024 * 1024);
+                
+                // Calcular tamanho total
+                let totalSize = 0;
+                folderItems.forEach(i => {
+                    if (i.type === 'upload' && i.files) {
+                        i.files.forEach(f => totalSize += f.size / (1024 * 1024));
+                    }
+                });
+                
+                if (totalSize + fileSizeMB > maxSize) {
+                    alert(`Não é possível adicionar "${file.name}". Limite de ${maxSize >= 1024 ? (maxSize/1024).toFixed(1) + ' GB' : maxSize + ' MB'} seria excedido.`);
+                    return;
+                }
+                
+                item.files.push(file);
+                
+                // Converter para base64
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    item.filesData.push({
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: e.target.result
+                    });
+                    updateFilesList(itemId);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            updateFilesList(itemId);
+        }
+
+        // Atualizar lista de arquivos
+        function updateFilesList(itemId) {
+            const item = folderItems.find(i => i.id === itemId);
+            if (!item || !item.files) return;
+
+            const filesList = document.getElementById(`filesList-${itemId}`);
+            
+            if (item.files.length === 0) {
+                filesList.innerHTML = '';
+                return;
+            }
+
+            filesList.innerHTML = '<h4 style="margin: 15px 0 10px 0; color: #2c3e50;">Arquivos:</h4>';
+            
+            item.files.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'file-item';
+                fileDiv.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">${getFileIcon(file.name)}</div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button class="btn-remove" onclick="removeFileFromItem(${itemId}, ${index})">
+                        Remover
+                    </button>
+                `;
+                filesList.appendChild(fileDiv);
+            });
+        }
+
+        // Remover arquivo de um item
+        function removeFileFromItem(itemId, fileIndex) {
+            const item = folderItems.find(i => i.id === itemId);
+            if (item) {
+                item.files.splice(fileIndex, 1);
+                item.filesData.splice(fileIndex, 1);
+                updateFilesList(itemId);
             }
         }
 
@@ -1110,147 +1392,10 @@
             
             showCreateSection();
             
-            selectedFiles = [];
-            totalFileSize = 0;
-            updateFilesList();
-        }
-
-        // Configurar drag and drop
-        const uploadAreaDiv = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-
-        if (uploadAreaDiv) {
-            const uploadZone = uploadAreaDiv.querySelector('.upload-area');
-            
-            uploadZone.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            uploadZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadZone.classList.add('dragover');
-            });
-
-            uploadZone.addEventListener('dragleave', () => {
-                uploadZone.classList.remove('dragover');
-            });
-
-            uploadZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadZone.classList.remove('dragover');
-                
-                const files = Array.from(e.dataTransfer.files);
-                addFiles(files);
-            });
-
-            fileInput.addEventListener('change', (e) => {
-                const files = Array.from(e.target.files);
-                addFiles(files);
-            });
-        }
-
-        // Adicionar arquivos
-        function addFiles(files) {
-            for (let file of files) {
-                const fileSizeMB = file.size / (1024 * 1024);
-                
-                if (totalFileSize + fileSizeMB > maxSize) {
-                    alert(`Não é possível adicionar "${file.name}". Limite de ${maxSize >= 1024 ? (maxSize/1024).toFixed(1) + ' GB' : maxSize + ' MB'} seria excedido.`);
-                    continue;
-                }
-                
-                selectedFiles.push(file);
-                totalFileSize += fileSizeMB;
-                
-                // Converter arquivo para base64 para armazenar
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    filesDataUrls.push({
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        data: e.target.result
-                    });
-                };
-                reader.readAsDataURL(file);
-            }
-            
-            updateFilesList();
-        }
-
-        // Atualizar lista de arquivos
-        function updateFilesList() {
-            const filesList = document.getElementById('filesList');
-            
-            if (selectedFiles.length === 0) {
-                filesList.innerHTML = '';
-                return;
-            }
-            
-            filesList.innerHTML = '<h3>Arquivos Adicionados:</h3>';
-            
-            selectedFiles.forEach((file, index) => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                
-                const fileInfo = document.createElement('div');
-                fileInfo.className = 'file-info';
-                
-                const fileIcon = document.createElement('div');
-                fileIcon.className = 'file-icon';
-                fileIcon.textContent = getFileIcon(file.name);
-                
-                const fileDetails = document.createElement('div');
-                fileDetails.className = 'file-details';
-                
-                const fileName = document.createElement('div');
-                fileName.className = 'file-name';
-                fileName.textContent = file.name;
-                
-                const fileSize = document.createElement('div');
-                fileSize.className = 'file-size';
-                fileSize.textContent = formatFileSize(file.size);
-                
-                fileDetails.appendChild(fileName);
-                fileDetails.appendChild(fileSize);
-                
-                fileInfo.appendChild(fileIcon);
-                fileInfo.appendChild(fileDetails);
-                
-                const btnRemove = document.createElement('button');
-                btnRemove.className = 'btn-remove';
-                btnRemove.textContent = 'Remover';
-                btnRemove.onclick = () => removeFile(index);
-                
-                fileItem.appendChild(fileInfo);
-                fileItem.appendChild(btnRemove);
-                
-                filesList.appendChild(fileItem);
-            });
-            
-            const totalInfo = document.createElement('div');
-            totalInfo.style.marginTop = '15px';
-            totalInfo.style.padding = '15px';
-            totalInfo.style.background = '#f6f8fa';
-            totalInfo.style.border = '1px solid #e1e4e8';
-            totalInfo.style.borderRadius = '6px';
-            totalInfo.style.fontWeight = '600';
-            totalInfo.innerHTML = `
-                <span style="color: #2c3e50;">Total:</span>
-                <span style="color: #0366d6; float: right;">
-                    ${totalFileSize.toFixed(2)} MB / ${maxSize >= 1024 ? (maxSize/1024).toFixed(1) + ' GB' : maxSize + ' MB'}
-                </span>
-            `;
-            filesList.appendChild(totalInfo);
-        }
-
-        // Remover arquivo
-        function removeFile(index) {
-            const file = selectedFiles[index];
-            const fileSizeMB = file.size / (1024 * 1024);
-            totalFileSize -= fileSizeMB;
-            selectedFiles.splice(index, 1);
-            updateFilesList();
+            // Reset items
+            folderItems = [];
+            itemIdCounter = 0;
+            renderFolderItems();
         }
 
         // Obter ícone do arquivo
@@ -1300,23 +1445,19 @@
                 return;
             }
             
-            if (currentCreateType === 'upload' && selectedFiles.length === 0) {
-                alert('Por favor, adicione pelo menos um arquivo.');
+            if (folderItems.length === 0) {
+                alert('Por favor, adicione pelo menos um item à pasta.');
                 return;
             }
             
-            if (currentCreateType === 'text') {
-                const textContent = document.getElementById('textEditor').value.trim();
-                if (!textContent) {
-                    alert('Por favor, escreva algo no editor de texto.');
+            // Validar conteúdo dos itens
+            for (let item of folderItems) {
+                if (item.type === 'upload' && (!item.files || item.files.length === 0)) {
+                    alert('Um dos itens de arquivo está vazio. Adicione arquivos ou remova o item.');
                     return;
                 }
-            }
-            
-            if (currentCreateType === 'code') {
-                const codeContent = document.getElementById('codeEditor').value.trim();
-                if (!codeContent) {
-                    alert('Por favor, escreva algum código.');
+                if ((item.type === 'text' || item.type === 'code') && !item.content) {
+                    alert('Um dos itens de texto/código está vazio. Adicione conteúdo ou remova o item.');
                     return;
                 }
             }
@@ -1357,15 +1498,11 @@
             const folderData = {
                 id: uniqueId,
                 name: folderName,
-                type: currentCreateType,
                 plan: currentPlan,
                 password: password,
                 createdAt: new Date().toISOString(),
                 expiresAt: new Date(Date.now() + config.validityHours * 60 * 60 * 1000).toISOString(),
-                files: filesDataUrls,
-                textContent: currentCreateType === 'text' ? document.getElementById('textEditor').value : '',
-                codeContent: currentCreateType === 'code' ? document.getElementById('codeEditor').value : '',
-                codeLanguage: currentCreateType === 'code' ? document.getElementById('codeLanguage').value : ''
+                items: folderItems
             };
             
             // Salvar no localStorage
@@ -1387,18 +1524,18 @@
             
             document.getElementById('generatedLink').value = link;
             
-            if (currentCreateType === 'upload') {
-                document.getElementById('totalSize').textContent = totalFileSize.toFixed(2) + ' MB';
-                document.getElementById('fileCount').textContent = selectedFiles.length + ' arquivo(s)';
-            } else if (currentCreateType === 'text') {
-                document.getElementById('totalSize').textContent = 'Texto';
-                document.getElementById('fileCount').textContent = '1 documento';
-            } else if (currentCreateType === 'code') {
-                const lang = document.getElementById('codeLanguage').value;
-                document.getElementById('totalSize').textContent = 'Código';
-                document.getElementById('fileCount').textContent = lang.toUpperCase();
-            }
+            // Calcular total
+            let totalSize = 0;
+            let itemCount = folderItems.length;
             
+            folderItems.forEach(item => {
+                if (item.type === 'upload' && item.files) {
+                    item.files.forEach(f => totalSize += f.size / (1024 * 1024));
+                }
+            });
+            
+            document.getElementById('totalSize').textContent = totalSize > 0 ? totalSize.toFixed(2) + ' MB' : '-';
+            document.getElementById('fileCount').textContent = itemCount + ' item(ns)';
             document.getElementById('expiryTime').textContent = formatDate(expiryDate);
             
             if (password) {
@@ -1464,24 +1601,21 @@
 
         // Criar outra pasta
         function createAnother() {
-            selectedFiles = [];
-            totalFileSize = 0;
-            filesDataUrls = [];
+            folderItems = [];
+            itemIdCounter = 0;
             document.getElementById('folderName').value = '';
             document.getElementById('folderPassword').value = '';
-            document.getElementById('fileInput').value = '';
-            document.getElementById('textEditor').value = '';
-            document.getElementById('codeEditor').value = '';
             
             document.getElementById('linkSection').style.display = 'none';
             document.getElementById('heroSection').style.display = 'block';
             document.getElementById('plansSection').style.display = 'block';
             document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('addItemMenu').style.display = 'none';
             
             const btnCreate = document.getElementById('btnCreate');
             btnCreate.disabled = false;
             
-            updateFilesList();
+            renderFolderItems();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1546,81 +1680,125 @@
             
             const contentDiv = document.getElementById('sharedContent');
             
-            if (folder.type === 'upload' && folder.files.length > 0) {
-                contentDiv.innerHTML = '<h3 style="margin-bottom: 15px; color: #2c3e50;">Arquivos:</h3>';
-                folder.files.forEach(file => {
-                    const fileDiv = document.createElement('div');
-                    fileDiv.style.cssText = 'background: #f6f8fa; padding: 15px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #e1e4e8;';
-                    fileDiv.innerHTML = `
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <div style="font-weight: 500; color: #2c3e50; margin-bottom: 5px;">
-                                    ${getFileIcon(file.name)} ${file.name}
+            // Renderizar itens da pasta
+            if (folder.items && folder.items.length > 0) {
+                folder.items.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'folder-item';
+                    itemDiv.style.marginBottom = '15px';
+                    
+                    const icon = item.type === 'upload' ? '📤' : item.type === 'text' ? '📝' : '💻';
+                    
+                    let itemContent = '';
+                    
+                    if (item.type === 'upload' && item.filesData && item.filesData.length > 0) {
+                        itemContent = '<div style="padding: 15px;">';
+                        item.filesData.forEach(file => {
+                            itemContent += `
+                                <div style="background: #f6f8fa; padding: 12px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-weight: 500; color: #2c3e50; margin-bottom: 4px;">
+                                            ${getFileIcon(file.name)} ${file.name}
+                                        </div>
+                                        <div style="font-size: 0.85em; color: #586069;">
+                                            ${formatFileSize(file.size)}
+                                        </div>
+                                    </div>
+                                    <a href="${file.data}" download="${file.name}" 
+                                       style="background: #0366d6; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.9em;">
+                                        Download
+                                    </a>
                                 </div>
-                                <div style="font-size: 0.85em; color: #586069;">
-                                    ${formatFileSize(file.size)}
+                            `;
+                        });
+                        itemContent += '</div>';
+                    } else if (item.type === 'text') {
+                        itemContent = `
+                            <div style="padding: 15px;">
+                                <div id="textView-${index}" style="background: white; border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; white-space: pre-wrap; line-height: 1.6;">
+                                    ${item.content}
                                 </div>
+                                <button onclick="enableEditItem(${index}, 'text')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                                    ✏️ Editar
+                                </button>
                             </div>
-                            <a href="${file.data}" download="${file.name}" 
-                               style="background: #0366d6; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500;">
-                                Download
-                            </a>
+                        `;
+                    } else if (item.type === 'code') {
+                        itemContent = `
+                            <div style="padding: 15px;">
+                                <div style="background: #f6f8fa; padding: 10px 15px; border-bottom: 1px solid #e1e4e8; border-radius: 6px 6px 0 0; font-weight: 600; color: #2c3e50;">
+                                    💻 ${item.language ? item.language.toUpperCase() : 'CODE'}
+                                </div>
+                                <div id="codeView-${index}" style="background: white; border: 1px solid #e1e4e8; border-radius: 0 0 6px 6px; padding: 20px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; white-space: pre; overflow-x: auto;">
+${item.content}
+                                </div>
+                                <button onclick="enableEditItem(${index}, 'code')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                                    ✏️ Editar
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    itemDiv.innerHTML = `
+                        <div class="folder-item-header" onclick="toggleViewItem(${index})">
+                            <div class="folder-item-title">
+                                <button class="btn-toggle" id="viewToggle-${index}">▼</button>
+                                <span>${icon} ${item.name}</span>
+                            </div>
+                        </div>
+                        <div class="folder-item-content" id="viewContent-${index}">
+                            ${itemContent}
                         </div>
                     `;
-                    contentDiv.appendChild(fileDiv);
+                    
+                    contentDiv.appendChild(itemDiv);
                 });
-            } else if (folder.type === 'text') {
-                contentDiv.innerHTML = `
-                    <div style="background: white; border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; white-space: pre-wrap; line-height: 1.6;">
-                        ${folder.textContent}
-                    </div>
-                    <button onclick="enableEdit('text')" style="margin-top: 15px; padding: 10px 20px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                        ✏️ Editar Texto
-                    </button>
-                `;
-            } else if (folder.type === 'code') {
-                contentDiv.innerHTML = `
-                    <div style="background: #f6f8fa; padding: 12px 20px; border-bottom: 1px solid #e1e4e8; border-radius: 6px 6px 0 0; font-weight: 600; color: #2c3e50;">
-                        💻 ${folder.codeLanguage.toUpperCase()}
-                    </div>
-                    <div style="background: white; border: 1px solid #e1e4e8; border-radius: 0 0 6px 6px; padding: 20px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; white-space: pre; overflow-x: auto;">
-${folder.codeContent}
-                    </div>
-                    <button onclick="enableEdit('code')" style="margin-top: 15px; padding: 10px 20px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                        ✏️ Editar Código
-                    </button>
-                `;
             }
         }
 
-        // Habilitar edição colaborativa
-        window.enableEdit = function(type) {
+        // Toggle visualização de item
+        function toggleViewItem(index) {
+            const content = document.getElementById(`viewContent-${index}`);
+            const toggle = document.getElementById(`viewToggle-${index}`);
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggle.classList.remove('collapsed');
+            } else {
+                content.classList.add('collapsed');
+                toggle.classList.add('collapsed');
+            }
+        }
+
+        // Habilitar edição de item compartilhado
+        window.enableEditItem = function(index, type) {
             const urlParams = new URLSearchParams(window.location.search);
             const folderId = urlParams.get('id');
             const folderData = JSON.parse(localStorage.getItem(`pasta_${folderId}`));
-            
-            const contentDiv = document.getElementById('sharedContent');
+            const item = folderData.items[index];
             
             if (type === 'text') {
-                contentDiv.innerHTML = `
-                    <textarea id="collaborativeEditor" style="width: 100%; min-height: 400px; padding: 20px; border: 1px solid #e1e4e8; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.6; resize: vertical;">${folderData.textContent}</textarea>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button onclick="saveEdit('text')" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                            💾 Salvar Alterações
+                const viewDiv = document.getElementById(`textView-${index}`);
+                viewDiv.outerHTML = `
+                    <textarea id="editText-${index}" style="width: 100%; min-height: 300px; padding: 20px; border: 1px solid #e1e4e8; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.6; resize: vertical;">${item.content}</textarea>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button onclick="saveEditItem(${index}, 'text')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                            💾 Salvar
                         </button>
-                        <button onclick="location.reload()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        <button onclick="location.reload()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
                             Cancelar
                         </button>
                     </div>
                 `;
             } else if (type === 'code') {
-                contentDiv.innerHTML = `
-                    <textarea id="collaborativeEditor" style="width: 100%; min-height: 400px; padding: 20px; border: 1px solid #e1e4e8; border-radius: 6px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.6; resize: vertical;">${folderData.codeContent}</textarea>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button onclick="saveEdit('code')" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                            💾 Salvar Alterações
+                const viewDiv = document.getElementById(`codeView-${index}`);
+                viewDiv.outerHTML = `
+                    <textarea id="editCode-${index}" style="width: 100%; min-height: 300px; padding: 20px; border: 1px solid #e1e4e8; border-radius: 6px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.6; resize: vertical;">${item.content}</textarea>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button onclick="saveEditItem(${index}, 'code')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                            💾 Salvar
                         </button>
-                        <button onclick="location.reload()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        <button onclick="location.reload()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
                             Cancelar
                         </button>
                     </div>
@@ -1628,21 +1806,17 @@ ${folder.codeContent}
             }
         };
 
-        // Salvar edição
-        window.saveEdit = function(type) {
+        // Salvar edição de item
+        window.saveEditItem = function(index, type) {
             const urlParams = new URLSearchParams(window.location.search);
             const folderId = urlParams.get('id');
             const folderData = JSON.parse(localStorage.getItem(`pasta_${folderId}`));
-            const newContent = document.getElementById('collaborativeEditor').value;
             
-            if (type === 'text') {
-                folderData.textContent = newContent;
-            } else if (type === 'code') {
-                folderData.codeContent = newContent;
-            }
+            const newContent = document.getElementById(`edit${type === 'text' ? 'Text' : 'Code'}-${index}`).value;
+            folderData.items[index].content = newContent;
             
             localStorage.setItem(`pasta_${folderId}`, JSON.stringify(folderData));
-            alert('✅ Alterações salvas com sucesso!');
+            alert('✅ Alterações salvas!');
             location.reload();
         };
 
