@@ -1536,7 +1536,7 @@
                 saveFolderAndShowLink();
             }
 
-        // ====== SALVAR NO FIRESTORE (NUVEM) ======
+        // ====== SALVAR NO FIREBASE (Storage + Firestore) ======
         async function saveFolderAndShowLink() {
             console.log('💾 saveFolderAndShowLink chamado!');
             
@@ -1550,50 +1550,93 @@
             const uniqueId = generateUniqueId();
             console.log('🆔 Unique ID:', uniqueId);
             
-            // Processar items para remover objetos File (não serializáveis)
-            const processedItems = folderItems.map(item => {
-                const processed = {
-                    id: item.id,
-                    type: item.type,
-                    name: item.name
+            try {
+                // Processar items - Upload de arquivos para Storage, textos direto
+                console.log('🔄 Processando items...');
+                const processedItems = await Promise.all(folderItems.map(async (item) => {
+                    const processed = {
+                        id: item.id,
+                        type: item.type,
+                        name: item.name
+                    };
+                    
+                    if (item.type === 'upload') {
+                        console.log('📤 Fazendo upload de arquivos para Storage...');
+                        // Upload de arquivos para Firebase Storage
+                        const uploadedFiles = [];
+                        
+                        for (const fileData of (item.filesData || [])) {
+                            try {
+                                console.log(`📎 Uploading ${fileData.name}...`);
+                                
+                                // Converter base64 para Blob
+                                const response = await fetch(fileData.data);
+                                const blob = await response.blob();
+                                
+                                // Criar referência no Storage
+                                const filePath = `pastas/${uniqueId}/${Date.now()}_${fileData.name}`;
+                                const storageRef = storage.ref(filePath);
+                                
+                                // Upload
+                                await storageRef.put(blob);
+                                
+                                // Obter URL de download
+                                const downloadURL = await storageRef.getDownloadURL();
+                                
+                                uploadedFiles.push({
+                                    name: fileData.name,
+                                    type: fileData.type,
+                                    size: fileData.size,
+                                    url: downloadURL,
+                                    path: filePath
+                                });
+                                
+                                console.log(`✅ ${fileData.name} uploaded!`);
+                            } catch (error) {
+                                console.error(`❌ Erro ao fazer upload de ${fileData.name}:`, error);
+                                // Se falhar, usa base64 como fallback
+                                uploadedFiles.push({
+                                    name: fileData.name,
+                                    type: fileData.type,
+                                    size: fileData.size,
+                                    data: fileData.data
+                                });
+                            }
+                        }
+                        
+                        processed.filesData = uploadedFiles;
+                    } else if (item.type === 'text' || item.type === 'code') {
+                        processed.content = item.content || '';
+                        if (item.type === 'code') {
+                            processed.language = item.language || 'javascript';
+                        }
+                    }
+                    
+                    return processed;
+                }));
+                
+                console.log('✅ Items processados:', processedItems);
+                
+                const folderData = {
+                    id: uniqueId,
+                    creatorName: creatorName,
+                    name: folderName,
+                    plan: currentPlan,
+                    password: password || null,
+                    createdAt: firebase.firestore.Timestamp.now(),
+                    expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + config.validityHours * 60 * 60 * 1000)),
+                    items: processedItems,
+                    views: 0
                 };
                 
-                if (item.type === 'upload') {
-                    // Usar apenas filesData (base64), não files (objetos File)
-                    processed.filesData = item.filesData || [];
-                } else if (item.type === 'text' || item.type === 'code') {
-                    processed.content = item.content || '';
-                    if (item.type === 'code') {
-                        processed.language = item.language || 'javascript';
-                    }
-                }
+                console.log('📁 Folder data para Firestore:', folderData);
                 
-                return processed;
-            });
-            
-            console.log('📦 Processed items:', processedItems);
-            
-            const folderData = {
-                id: uniqueId,
-                creatorName: creatorName,
-                name: folderName,
-                plan: currentPlan,
-                password: password || null,
-                createdAt: firebase.firestore.Timestamp.now(),
-                expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + config.validityHours * 60 * 60 * 1000)),
-                items: processedItems,
-                views: 0
-            };
-            
-            console.log('📁 Folder data:', folderData);
-            
-            try {
                 // Salvar no Firestore
                 console.log('☁️ Salvando no Firestore...');
                 await db.collection('pastas').doc(uniqueId).set(folderData);
                 console.log('✅ Pasta salva no Firestore com sucesso!');
                 
-                // Também salvar no localStorage como backup
+                // Backup no localStorage
                 localStorage.setItem(`pasta_${uniqueId}`, JSON.stringify({
                     ...folderData,
                     createdAt: folderData.createdAt.toDate().toISOString(),
@@ -1602,8 +1645,9 @@
                 
                 // Mostrar link
                 showLinkSection(uniqueId);
+                
             } catch (error) {
-                console.error('❌ Erro ao salvar no Firestore:', error);
+                console.error('❌ Erro ao salvar:', error);
                 alert('❌ Erro ao salvar pasta: ' + error.message);
             }
         }            // ====== SALVAR NO FIRESTORE (NUVEM) ======
