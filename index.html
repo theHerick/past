@@ -1425,7 +1425,7 @@
                                             id="console-input-${item.id}"
                                             placeholder="Digite um comando JavaScript, Python, C++..."
                                             style="flex: 1; background: transparent; border: none; color: #c9d1d9; font-family: 'Consolas', monospace; font-size: 13px; outline: none;"
-                                            onkeypress="handleConsoleInput(event, ${item.id})"
+                                            onkeydown="handleConsoleInput(event, ${item.id})"
                                             autocomplete="off"
                                         />
                                     </div>
@@ -1727,9 +1727,14 @@
             }
 
             function handleConsoleInput(event, itemId) {
+                console.log('🎮 Console input event:', event.key, 'itemId:', itemId);
+                
                 if (event.key === 'Enter') {
+                    event.preventDefault();
                     const input = document.getElementById(`console-input-${itemId}`);
                     const command = input.value.trim();
+                    
+                    console.log('📝 Command entered:', command);
                     
                     if (command) {
                         // Adicionar ao histórico
@@ -1774,7 +1779,7 @@
             }
 
             function executeConsoleCommand(itemId, command) {
-                const consoleOutput = document.getElementById(`console-output-${itemId}`);
+                console.log('🚀 Executando comando:', command, 'para item:', itemId);
                 
                 // Mostrar o comando digitado
                 addToInteractiveConsole(itemId, `> ${command}`, 'command');
@@ -1787,63 +1792,36 @@
                 try {
                     // Detectar linguagem baseada no comando
                     if (command.includes('print(') || command.startsWith('import ') || command.includes('def ')) {
+                        console.log('🐍 Executando como Python');
                         executeConsolePython(itemId, command);
                     } else if (command.includes('cout') || command.includes('#include') || command.includes('int ')) {
+                        console.log('⚙️ Executando como C++');
                         executeConsoleCpp(itemId, command);
                     } else {
-                        // JavaScript por padrão
+                        console.log('🟨 Executando como JavaScript');
                         executeConsoleJavaScript(itemId, command);
                     }
                 } catch (error) {
+                    console.error('❌ Erro na execução:', error);
                     addToInteractiveConsole(itemId, `❌ Erro: ${error.message}`, 'error');
                 }
             }
 
             function executeConsoleJavaScript(itemId, command) {
-                // Capturar console.log
-                const originalLog = console.log;
-                let output = [];
-                
-                console.log = (...args) => {
-                    output.push(args.join(' '));
-                };
+                console.log('🟨 Executando JS:', command);
                 
                 try {
-                    // Usar contexto persistente
-                    const contextKeys = Object.keys(consoleContext[itemId]);
-                    const contextValues = contextKeys.map(key => consoleContext[itemId][key]);
+                    // Versão simplificada para debug
+                    const result = eval(command);
                     
-                    // Criar função que executa no contexto
-                    const func = new Function(...contextKeys, `
-                        ${command.includes('return') ? '' : 'return '}${command}
-                    `);
-                    
-                    const result = func(...contextValues);
-                    
-                    // Capturar variáveis declaradas (simples)
-                    if (command.includes('let ') || command.includes('var ') || command.includes('const ')) {
-                        const match = command.match(/(let|var|const)\s+(\w+)\s*=\s*(.+)/);
-                        if (match) {
-                            const varName = match[2];
-                            consoleContext[itemId][varName] = eval(match[3]);
-                            addToInteractiveConsole(itemId, `✓ Variável ${varName} definida`, 'success');
-                        }
-                    }
-                    
-                    // Mostrar output de console.log
-                    if (output.length > 0) {
-                        output.forEach(out => addToInteractiveConsole(itemId, out, 'output'));
-                    }
-                    
-                    // Mostrar resultado se não é undefined e não tem console.log
-                    if (result !== undefined && output.length === 0) {
+                    if (result !== undefined) {
                         addToInteractiveConsole(itemId, `← ${result}`, 'result');
+                    } else {
+                        addToInteractiveConsole(itemId, '✓ Executado com sucesso', 'success');
                     }
                     
                 } catch (error) {
                     addToInteractiveConsole(itemId, `❌ ${error.message}`, 'error');
-                } finally {
-                    console.log = originalLog;
                 }
             }
 
