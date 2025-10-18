@@ -1849,18 +1849,187 @@
             }
 
             function executeConsoleCpp(itemId, command) {
-                // Simulação simples de C++
-                if (command.includes('cout')) {
-                    const match = command.match(/cout\s*<<\s*"([^"]+)"/);
-                    if (match) {
-                        addToInteractiveConsole(itemId, match[1], 'output');
-                    } else {
-                        addToInteractiveConsole(itemId, '💡 Dica: Use cout << "texto"; para output', 'info');
+                console.log('⚙️ Executando C++:', command);
+                
+                // Inicializar contexto C++ se não existe
+                if (!consoleContext[itemId].cppVars) {
+                    consoleContext[itemId].cppVars = {};
+                }
+                
+                try {
+                    // Remover ponto e vírgula do final se existir
+                    command = command.replace(/;\s*$/, '');
+                    
+                    // Declaração de variáveis
+                    if (command.match(/^\s*(int|float|double|string|char|bool)\s+(\w+)/)) {
+                        const match = command.match(/^\s*(int|float|double|string|char|bool)\s+(\w+)(?:\s*=\s*(.+))?/);
+                        if (match) {
+                            const type = match[1];
+                            const varName = match[2];
+                            const value = match[3];
+                            
+                            if (value) {
+                                let parsedValue = value;
+                                if (type === 'int') parsedValue = parseInt(value) || 0;
+                                else if (type === 'float' || type === 'double') parsedValue = parseFloat(value) || 0.0;
+                                else if (type === 'string') parsedValue = value.replace(/"/g, '');
+                                else if (type === 'bool') parsedValue = value === 'true';
+                                else if (type === 'char') parsedValue = value.replace(/'/g, '');
+                                
+                                consoleContext[itemId].cppVars[varName] = { type, value: parsedValue };
+                                addToInteractiveConsole(itemId, `✓ ${type} ${varName} = ${parsedValue}`, 'success');
+                            } else {
+                                consoleContext[itemId].cppVars[varName] = { type, value: null };
+                                addToInteractiveConsole(itemId, `✓ ${type} ${varName} declarado`, 'success');
+                            }
+                        }
+                        return;
                     }
-                } else if (command.includes('int ') || command.includes('float ') || command.includes('string ')) {
-                    addToInteractiveConsole(itemId, '✓ Variável declarada', 'success');
-                } else {
-                    addToInteractiveConsole(itemId, '💡 Dica: Use cout << "texto"; para output', 'info');
+                    
+                    // Atribuição de variáveis
+                    if (command.match(/^\s*(\w+)\s*=\s*(.+)/)) {
+                        const match = command.match(/^\s*(\w+)\s*=\s*(.+)/);
+                        if (match) {
+                            const varName = match[1];
+                            const value = match[2];
+                            
+                            if (consoleContext[itemId].cppVars[varName]) {
+                                const type = consoleContext[itemId].cppVars[varName].type;
+                                let parsedValue = value;
+                                
+                                if (type === 'int') parsedValue = parseInt(value) || 0;
+                                else if (type === 'float' || type === 'double') parsedValue = parseFloat(value) || 0.0;
+                                else if (type === 'string') parsedValue = value.replace(/"/g, '');
+                                else if (type === 'bool') parsedValue = value === 'true';
+                                else if (type === 'char') parsedValue = value.replace(/'/g, '');
+                                
+                                consoleContext[itemId].cppVars[varName].value = parsedValue;
+                                addToInteractiveConsole(itemId, `✓ ${varName} = ${parsedValue}`, 'success');
+                            } else {
+                                addToInteractiveConsole(itemId, `❌ Variável '${varName}' não declarada`, 'error');
+                            }
+                        }
+                        return;
+                    }
+                    
+                    // cout statements
+                    if (command.includes('cout')) {
+                        let output = '';
+                        const parts = command.split('<<');
+                        
+                        for (let i = 1; i < parts.length; i++) {
+                            let part = parts[i].trim();
+                            
+                            // String literal
+                            if (part.startsWith('"') && part.includes('"')) {
+                                const match = part.match(/"([^"]*)"/);
+                                if (match) output += match[1];
+                            }
+                            // Variável
+                            else if (part.match(/^\w+/)) {
+                                const varName = part.match(/^\w+/)[0];
+                                if (consoleContext[itemId].cppVars[varName]) {
+                                    output += consoleContext[itemId].cppVars[varName].value;
+                                } else {
+                                    output += `[${varName}?]`;
+                                }
+                            }
+                            // endl ou \n
+                            else if (part.includes('endl') || part.includes('\\n')) {
+                                output += '\n';
+                            }
+                            // Expressões matemáticas simples
+                            else if (part.match(/^\d+[\+\-\*\/]\d+/)) {
+                                try {
+                                    output += eval(part);
+                                } catch(e) {
+                                    output += part;
+                                }
+                            }
+                            // Números
+                            else if (part.match(/^\d+\.?\d*$/)) {
+                                output += part;
+                            }
+                        }
+                        
+                        addToInteractiveConsole(itemId, output || 'Output vazio', 'output');
+                        return;
+                    }
+                    
+                    // cin statements
+                    if (command.includes('cin')) {
+                        const match = command.match(/cin\s*>>\s*(\w+)/);
+                        if (match) {
+                            const varName = match[1];
+                            if (consoleContext[itemId].cppVars[varName]) {
+                                const input = prompt(`Digite valor para ${varName}:`);
+                                if (input !== null) {
+                                    const type = consoleContext[itemId].cppVars[varName].type;
+                                    let parsedInput = input;
+                                    
+                                    if (type === 'int') parsedInput = parseInt(input) || 0;
+                                    else if (type === 'float' || type === 'double') parsedInput = parseFloat(input) || 0.0;
+                                    else if (type === 'bool') parsedInput = input.toLowerCase() === 'true';
+                                    
+                                    consoleContext[itemId].cppVars[varName].value = parsedInput;
+                                    addToInteractiveConsole(itemId, `✓ ${varName} = ${parsedInput}`, 'success');
+                                }
+                            } else {
+                                addToInteractiveConsole(itemId, `❌ Variável '${varName}' não declarada`, 'error');
+                            }
+                        }
+                        return;
+                    }
+                    
+                    // Mostrar variável
+                    if (command.match(/^\w+$/) && consoleContext[itemId].cppVars[command]) {
+                        const variable = consoleContext[itemId].cppVars[command];
+                        addToInteractiveConsole(itemId, `${command} = ${variable.value} (${variable.type})`, 'result');
+                        return;
+                    }
+                    
+                    // Comandos especiais
+                    if (command === 'vars' || command === 'variables') {
+                        const vars = Object.keys(consoleContext[itemId].cppVars);
+                        if (vars.length === 0) {
+                            addToInteractiveConsole(itemId, 'Nenhuma variável declarada', 'info');
+                        } else {
+                            vars.forEach(varName => {
+                                const variable = consoleContext[itemId].cppVars[varName];
+                                addToInteractiveConsole(itemId, `${variable.type} ${varName} = ${variable.value}`, 'info');
+                            });
+                        }
+                        return;
+                    }
+                    
+                    // Expressões matemáticas simples
+                    if (command.match(/^\d+\s*[\+\-\*\/]\s*\d+/)) {
+                        try {
+                            const result = eval(command);
+                            addToInteractiveConsole(itemId, `= ${result}`, 'result');
+                        } catch(e) {
+                            addToInteractiveConsole(itemId, `❌ Erro na expressão: ${e.message}`, 'error');
+                        }
+                        return;
+                    }
+                    
+                    // Help
+                    if (command === 'help' || command === 'ajuda') {
+                        addToInteractiveConsole(itemId, '� Comandos disponíveis:', 'info');
+                        addToInteractiveConsole(itemId, '• Declarar: int x = 5; float y = 3.14;', 'info');
+                        addToInteractiveConsole(itemId, '• Atribuir: x = 10;', 'info');
+                        addToInteractiveConsole(itemId, '• Output: cout << "texto" << x << endl;', 'info');
+                        addToInteractiveConsole(itemId, '• Input: cin >> x;', 'info');
+                        addToInteractiveConsole(itemId, '• Ver vars: vars', 'info');
+                        addToInteractiveConsole(itemId, '• Math: 2 + 3 * 4', 'info');
+                        return;
+                    }
+                    
+                    // Se chegou aqui, comando não reconhecido
+                    addToInteractiveConsole(itemId, '❓ Comando não reconhecido. Digite "help" para ver comandos.', 'info');
+                    
+                } catch (error) {
+                    addToInteractiveConsole(itemId, `❌ ${error.message}`, 'error');
                 }
             }
 
@@ -1905,10 +2074,10 @@
                     clearTimeout(syncTimeouts[itemId]);
                 }
                 
-                // Criar novo timeout para sincronizar após 300ms de inatividade
+                // Criar novo timeout para sincronizar após 150ms de inatividade
                 syncTimeouts[itemId] = setTimeout(() => {
                     syncItemToFirestore(itemId);
-                }, 300);
+                }, 150);
             }
 
             async function syncItemToFirestore(itemId) {
@@ -1930,12 +2099,23 @@
                     // Encontrar e atualizar o item
                     const itemIndex = items.findIndex(i => i.id === itemId);
                     if (itemIndex !== -1) {
+                        const now = Date.now();
+                        
+                        // Só atualizar se realmente mudou
+                        const existingItem = items[itemIndex];
+                        if (existingItem.content === item.content && existingItem.language === item.language) {
+                            return; // Não mostrar indicador se nada mudou
+                        }
+                        
                         items[itemIndex] = {
                             ...items[itemIndex],
                             content: item.content,
                             language: item.language,
-                            lastModified: Date.now()
+                            lastModified: now
                         };
+                        
+                        // Atualizar timestamp local também
+                        item.lastModified = now;
                         
                         // Atualizar no Realtime Database
                         await db.ref('pastas-compartilhadas/' + currentFolderId).update({
@@ -1944,7 +2124,7 @@
                         });
                         
                         console.log('🔄 Item sincronizado:', itemId);
-                        showSyncIndicator('success', 'Alterações salvas!');
+                        showSyncIndicator('success', '💾 Salvo');
                     }
                 } catch (error) {
                     console.error('❌ Erro na sincronização:', error);
@@ -1985,11 +2165,24 @@
                                 const editor = document.getElementById(`codeEditor-${localItem.id}`) || 
                                              document.getElementById(`textEditor-${localItem.id}`);
                                 
-                                if (editor && document.activeElement !== editor) {
-                                    editor.value = serverItem.content;
+                                if (editor) {
+                                    // Só atualizar se o editor não está sendo usado OU se o conteúdo é muito diferente
+                                    const isActiveEditor = document.activeElement === editor;
+                                    const contentChanged = editor.value !== serverItem.content;
+                                    
+                                    if (!isActiveEditor && contentChanged) {
+                                        // Salvar posição do cursor se for o editor ativo
+                                        const cursorPos = editor.selectionStart;
+                                        editor.value = serverItem.content;
+                                        
+                                        // Restaurar posição do cursor se possível
+                                        if (cursorPos <= serverItem.content.length) {
+                                            editor.setSelectionRange(cursorPos, cursorPos);
+                                        }
+                                        
+                                        console.log('🔄 Item atualizado do servidor:', serverItem.id);
+                                    }
                                 }
-                                
-                                console.log('🔄 Item atualizado do servidor:', serverItem.id);
                             }
                         }
                     });
@@ -2486,12 +2679,6 @@
                         }
                     }
                     
-                    // Perguntar nome do visitante (opcional)
-                    const visitorName = prompt('Qual seu nome? (opcional para se identificar)', '');
-                    if (visitorName && visitorName.trim()) {
-                        console.log('👤 Visitante:', visitorName.trim());
-                    }
-                    
                     // Incrementar visualizações
                     await db.ref('pastas-compartilhadas/' + folderId + '/views').transaction((currentValue) => {
                         return (currentValue || 0) + 1;
@@ -2601,39 +2788,101 @@
                                 itemContent = '<div style="padding: 15px; color: #586069;">Nenhum arquivo neste item</div>';
                             }
                         } else if (item.type === 'text') {
+                            // Adicionar item ao folderItems para funcionar com as funções existentes
+                            const localItem = { 
+                                id: index + 1000, // ID único para itens compartilhados
+                                type: 'text',
+                                content: item.content,
+                                name: item.name
+                            };
+                            if (!folderItems.find(i => i.id === localItem.id)) {
+                                folderItems.push(localItem);
+                            }
+                            
                             itemContent = `
                                 <div style="padding: 15px;">
-                                    <div id="textView-${index}" style="background: white; border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; white-space: pre-wrap; line-height: 1.6;">
-                                        ${item.content}
-                                    </div>
-                                    <button onclick="enableEditItem('${folder.id}', ${index}, 'text')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                                        ✏️ Editar
-                                    </button>
+                                    <textarea 
+                                        class="text-editor" 
+                                        id="textEditor-${localItem.id}" 
+                                        placeholder="Comece a escrever seu documento..."
+                                        oninput="updateItemContent(${localItem.id}, this.value); debounceSync(${localItem.id})"
+                                        style="width: 100%; min-height: 300px; resize: vertical;"
+                                    >${item.content || ''}</textarea>
                                 </div>
                             `;
                         } else if (item.type === 'code') {
+                            // Adicionar item ao folderItems para funcionar com as funções existentes
+                            const localItem = { 
+                                id: index + 1000, // ID único para itens compartilhados
+                                type: 'code',
+                                content: item.content,
+                                name: item.name,
+                                language: item.language || 'cpp'
+                            };
+                            if (!folderItems.find(i => i.id === localItem.id)) {
+                                folderItems.push(localItem);
+                            }
+                            
                             itemContent = `
                                 <div style="padding: 15px;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f6f8fa; padding: 10px 15px; border-bottom: 1px solid #e1e4e8; border-radius: 6px 6px 0 0; font-weight: 600; color: #2c3e50;">
-                                        <span>💻 ${item.language ? item.language.toUpperCase() : 'CODE'}</span>
-                                        <button onclick="runSharedCode(${index}, '${item.language || 'javascript'}')" 
-                                                style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.9em;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                        <label style="font-weight: 500; color: #2c3e50;">Linguagem:</label>
+                                        <select 
+                                            id="languageSelect-${localItem.id}"
+                                            onchange="updateItemLanguage(${localItem.id}, this.value)"
+                                            style="padding: 5px; border: 1px solid #e1e4e8; border-radius: 4px; background: white;"
+                                        >
+                                            <option value="cpp" ${item.language === 'cpp' ? 'selected' : ''}>C++</option>
+                                            <option value="javascript" ${item.language === 'javascript' ? 'selected' : ''}>JavaScript</option>
+                                            <option value="python" ${item.language === 'python' ? 'selected' : ''}>Python</option>
+                                            <option value="html" ${item.language === 'html' ? 'selected' : ''}>HTML</option>
+                                            <option value="css" ${item.language === 'css' ? 'selected' : ''}>CSS</option>
+                                            <option value="json" ${item.language === 'json' ? 'selected' : ''}>JSON</option>
+                                        </select>
+                                        <button 
+                                            onclick="runCode(${localItem.id})"
+                                            style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500; margin-left: auto;"
+                                        >
                                             ▶️ Executar
                                         </button>
                                     </div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                        <div>
-                                            <div id="codeView-${index}" style="background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; padding: 20px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; white-space: pre; overflow-x: auto; max-height: 300px; overflow-y: auto;">${item.content}</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 400px;">
+                                        <div style="display: flex; flex-direction: column;">
+                                            <div style="background: #f6f8fa; padding: 8px 12px; border: 1px solid #e1e4e8; border-bottom: none; border-radius: 6px 6px 0 0; font-weight: 600; color: #2c3e50; font-size: 0.9em;">
+                                                💻 Editor C++
+                                            </div>
+                                            <textarea 
+                                                class="code-editor" 
+                                                id="codeEditor-${localItem.id}" 
+                                                placeholder="// Comece a programar em C++...&#10;#include <iostream>&#10;using namespace std;&#10;&#10;int main() {&#10;    int idade;&#10;    cout << \"Digite sua idade: \";&#10;    cin >> idade;&#10;    cout << \"Você tem \" << idade << \" anos!\" << endl;&#10;    return 0;&#10;}"
+                                                oninput="updateItemContent(${localItem.id}, this.value); debounceSync(${localItem.id})"
+                                                style="flex: 1; border-radius: 0 0 6px 6px; resize: none;"
+                                            >${item.content || ''}</textarea>
                                         </div>
-                                        <div>
-                                            <div style="background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; padding: 12px; font-family: 'Consolas', monospace; font-size: 13px; max-height: 300px; overflow-y: auto;" id="sharedConsole-${index}">
-                                                Clique em "Executar" para ver o resultado...
+                                        <div style="display: flex; flex-direction: column;">
+                                            <div style="background: #0d1117; color: #c9d1d9; padding: 8px 12px; border: 1px solid #30363d; border-bottom: none; border-radius: 6px 6px 0 0; font-weight: 600; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center;">
+                                                <span>📟 Console Interativo C++</span>
+                                                <button onclick="clearInteractiveConsole(${localItem.id})" style="background: none; border: none; color: #c9d1d9; cursor: pointer; font-size: 0.8em;">🗑️ Limpar</button>
+                                            </div>
+                                            <div style="flex: 1; background: #0d1117; border: 1px solid #30363d; border-radius: 0 0 6px 6px; display: flex; flex-direction: column;">
+                                                <div 
+                                                    id="console-output-${localItem.id}" 
+                                                    style="flex: 1; padding: 12px; font-family: 'Consolas', monospace; font-size: 13px; overflow-y: auto; white-space: pre-wrap; color: #c9d1d9; min-height: 250px; max-height: 300px;"
+                                                >Console interativo C++ pronto! Digite comandos abaixo ↓</div>
+                                                <div style="border-top: 1px solid #30363d; display: flex; align-items: center; padding: 8px;">
+                                                    <span style="color: #58a6ff; font-family: 'Consolas', monospace; font-size: 13px; margin-right: 8px;">></span>
+                                                    <input 
+                                                        type="text" 
+                                                        id="console-input-${localItem.id}"
+                                                        placeholder="Digite comando C++: int x = 5; cout << \"Hello\"; cin >> var;"
+                                                        style="flex: 1; background: transparent; border: none; color: #c9d1d9; font-family: 'Consolas', monospace; font-size: 13px; outline: none;"
+                                                        onkeydown="handleConsoleInput(event, ${localItem.id})"
+                                                        autocomplete="off"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <button onclick="enableEditItem('${folder.id}', ${index}, 'code')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                                        ✏️ Editar
-                                    </button>
                                 </div>
                             `;
                         }
@@ -2942,7 +3191,7 @@
                         text.textContent = message || 'Sincronizado';
                         setTimeout(() => {
                             indicator.style.display = 'none';
-                        }, 2000);
+                        }, 1000);
                         break;
                     case 'error':
                         indicator.classList.add('error');
