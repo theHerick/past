@@ -1035,7 +1035,7 @@
             </div>
             <!-- Seção de Planos -->
             <section class="plans-section" id="plansSection">
-                <h2>Escolha seu Plano</h2>
+                <h2>Compre sua Pasta</h2>
                 <div class="plans-grid">
                     <div class="plan-card" data-plan="free">
                         <h3>Grátis</h3>
@@ -1053,32 +1053,31 @@
 
                     <div class="plan-card popular" data-plan="pro">
                         <div class="plan-badge">Mais Popular</div>
-                        <h3>Pro</h3>
-                        <div class="plan-price">R$ 9,90<span>/mês</span></div>
+                        <h3>Pasta Pro</h3>
+                        <div class="plan-price">R$ 5,99<span>/única vez</span></div>
                         <ul class="plan-features">
                             <li>Até 15 itens por pasta</li>
                             <li>Válido por 7 dias</li>
-                            <li>Todas as linguagens suportadas</li>
+                            <li>Todas as linguagens + Compilação</li>
                             <li>Senha de proteção</li>
-                            <li>10 pastas simultâneas</li>
-                            <li>Exportar código</li>
+                            <li>Console interativo</li>
+                            <li>Renovação por R$ 2,99</li>
                         </ul>
-                        <button class="btn-select" onclick="selectPlan('pro', 15)">Assinar Pro</button>
+                        <button class="btn-select" onclick="selectPlan('pro', 15)">Comprar Pasta Pro</button>
                     </div>
 
                     <div class="plan-card" data-plan="premium">
-                        <h3>Premium</h3>
-                        <div class="plan-price">R$ 19,90<span>/mês</span></div>
+                        <h3>Pasta Premium</h3>
+                        <div class="plan-price">R$ 9,99<span>/única vez</span></div>
                         <ul class="plan-features">
                             <li>Itens ilimitados por pasta</li>
-                            <li><strong>Nunca expira (enquanto pago)</strong></li>
-                            <li>Histórico de versões</li>
-                            <li>Pastas ilimitadas</li>
-                            <li>Backup automático</li>
-                            <li>Suporte prioritário 24/7</li>
-                            <li>Cancela? 24h para salvar tudo</li>
+                            <li><strong>Válido por 30 dias</strong></li>
+                            <li>Console interativo avançado</li>
+                            <li>Todas as linguagens + Compilação</li>
+                            <li>Senha de proteção</li>
+                            <li>Renovação por R$ 4,99</li>
                         </ul>
-                        <button class="btn-select" onclick="selectPlan('premium', 999)">Assinar Premium</button>
+                        <button class="btn-select" onclick="selectPlan('premium', 999)">Comprar Pasta Premium</button>
                     </div>
                 </div>
             </section>
@@ -1225,26 +1224,30 @@
             // Configurações dos planos
             const planConfigs = {
                 free: {
-                    name: 'Grátis',
+                    name: 'Pasta Grátis',
                     maxItems: 3,
                     validity: '24 horas',
                     validityHours: 24,
-                    hasPassword: false
+                    hasPassword: false,
+                    price: 0
                 },
                 pro: {
-                    name: 'Pro', 
+                    name: 'Pasta Pro', 
                     maxItems: 15,
                     validity: '7 dias',
                     validityHours: 168,
-                    hasPassword: true
+                    hasPassword: true,
+                    price: 5.99,
+                    renewPrice: 2.99
                 },
                 premium: {
-                    name: 'Premium',
+                    name: 'Pasta Premium',
                     maxItems: 999,
-                    validity: 'Nunca expira',
-                    validityHours: 365 * 24 * 10, // 10 anos 
+                    validity: '30 dias',
+                    validityHours: 30 * 24, // 30 dias
                     hasPassword: true,
-                    neverExpires: true
+                    price: 9.99,
+                    renewPrice: 4.99
                 }
             };
 
@@ -1407,13 +1410,26 @@
                             </div>
                             <div style="display: flex; flex-direction: column;">
                                 <div style="background: #0d1117; color: #c9d1d9; padding: 8px 12px; border: 1px solid #30363d; border-bottom: none; border-radius: 6px 6px 0 0; font-weight: 600; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center;">
-                                    <span>📟 Console</span>
-                                    <button onclick="clearConsole(${item.id})" style="background: none; border: none; color: #c9d1d9; cursor: pointer; font-size: 0.8em;">🗑️ Limpar</button>
+                                    <span>📟 Console Interativo</span>
+                                    <button onclick="clearInteractiveConsole(${item.id})" style="background: none; border: none; color: #c9d1d9; cursor: pointer; font-size: 0.8em;">🗑️ Limpar</button>
                                 </div>
-                                <div 
-                                    id="console-${item.id}" 
-                                    style="flex: 1; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 0 0 6px 6px; padding: 12px; font-family: 'Consolas', monospace; font-size: 13px; overflow-y: auto; white-space: pre-wrap;"
-                                >Pronto para executar código...</div>
+                                <div style="flex: 1; background: #0d1117; border: 1px solid #30363d; border-radius: 0 0 6px 6px; display: flex; flex-direction: column;">
+                                    <div 
+                                        id="console-output-${item.id}" 
+                                        style="flex: 1; padding: 12px; font-family: 'Consolas', monospace; font-size: 13px; overflow-y: auto; white-space: pre-wrap; color: #c9d1d9; min-height: 250px; max-height: 300px;"
+                                    >Console interativo pronto! Digite comandos abaixo ↓</div>
+                                    <div style="border-top: 1px solid #30363d; display: flex; align-items: center; padding: 8px;">
+                                        <span style="color: #58a6ff; font-family: 'Consolas', monospace; font-size: 13px; margin-right: 8px;">></span>
+                                        <input 
+                                            type="text" 
+                                            id="console-input-${item.id}"
+                                            placeholder="Digite um comando JavaScript, Python, C++..."
+                                            style="flex: 1; background: transparent; border: none; color: #c9d1d9; font-family: 'Consolas', monospace; font-size: 13px; outline: none;"
+                                            onkeypress="handleConsoleInput(event, ${item.id})"
+                                            autocomplete="off"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1473,6 +1489,9 @@
 
                 // Limpar console
                 consoleDiv.innerHTML = '';
+                
+                // Limpar console interativo também se existir
+                clearInteractiveConsole(itemId);
                 
                 // Adicionar timestamp
                 addToConsole(itemId, `[${new Date().toLocaleTimeString()}] Executando ${language.toUpperCase()}...`, 'info');
@@ -1693,6 +1712,208 @@
                 }
             }
 
+            // CONSOLE INTERATIVO
+            let consoleHistory = {};
+            let consoleHistoryIndex = {};
+            let consoleContext = {}; // Para manter variáveis entre comandos
+
+            function clearInteractiveConsole(itemId) {
+                const consoleOutput = document.getElementById(`console-output-${itemId}`);
+                if (consoleOutput) {
+                    consoleOutput.innerHTML = 'Console limpo! Digite um comando ↓';
+                }
+                // Limpar contexto de variáveis
+                consoleContext[itemId] = {};
+            }
+
+            function handleConsoleInput(event, itemId) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById(`console-input-${itemId}`);
+                    const command = input.value.trim();
+                    
+                    if (command) {
+                        // Adicionar ao histórico
+                        if (!consoleHistory[itemId]) {
+                            consoleHistory[itemId] = [];
+                        }
+                        consoleHistory[itemId].push(command);
+                        consoleHistoryIndex[itemId] = consoleHistory[itemId].length;
+                        
+                        // Executar comando
+                        executeConsoleCommand(itemId, command);
+                        
+                        // Limpar input
+                        input.value = '';
+                    }
+                } else if (event.key === 'ArrowUp') {
+                    // Histórico para cima
+                    event.preventDefault();
+                    navigateHistory(itemId, 'up');
+                } else if (event.key === 'ArrowDown') {
+                    // Histórico para baixo
+                    event.preventDefault();
+                    navigateHistory(itemId, 'down');
+                }
+            }
+
+            function navigateHistory(itemId, direction) {
+                if (!consoleHistory[itemId] || consoleHistory[itemId].length === 0) return;
+                
+                const input = document.getElementById(`console-input-${itemId}`);
+                
+                if (direction === 'up' && consoleHistoryIndex[itemId] > 0) {
+                    consoleHistoryIndex[itemId]--;
+                    input.value = consoleHistory[itemId][consoleHistoryIndex[itemId]];
+                } else if (direction === 'down' && consoleHistoryIndex[itemId] < consoleHistory[itemId].length - 1) {
+                    consoleHistoryIndex[itemId]++;
+                    input.value = consoleHistory[itemId][consoleHistoryIndex[itemId]];
+                } else if (direction === 'down' && consoleHistoryIndex[itemId] === consoleHistory[itemId].length - 1) {
+                    consoleHistoryIndex[itemId] = consoleHistory[itemId].length;
+                    input.value = '';
+                }
+            }
+
+            function executeConsoleCommand(itemId, command) {
+                const consoleOutput = document.getElementById(`console-output-${itemId}`);
+                
+                // Mostrar o comando digitado
+                addToInteractiveConsole(itemId, `> ${command}`, 'command');
+                
+                // Inicializar contexto se não existe
+                if (!consoleContext[itemId]) {
+                    consoleContext[itemId] = {};
+                }
+                
+                try {
+                    // Detectar linguagem baseada no comando
+                    if (command.includes('print(') || command.startsWith('import ') || command.includes('def ')) {
+                        executeConsolePython(itemId, command);
+                    } else if (command.includes('cout') || command.includes('#include') || command.includes('int ')) {
+                        executeConsoleCpp(itemId, command);
+                    } else {
+                        // JavaScript por padrão
+                        executeConsoleJavaScript(itemId, command);
+                    }
+                } catch (error) {
+                    addToInteractiveConsole(itemId, `❌ Erro: ${error.message}`, 'error');
+                }
+            }
+
+            function executeConsoleJavaScript(itemId, command) {
+                // Capturar console.log
+                const originalLog = console.log;
+                let output = [];
+                
+                console.log = (...args) => {
+                    output.push(args.join(' '));
+                };
+                
+                try {
+                    // Usar contexto persistente
+                    const contextKeys = Object.keys(consoleContext[itemId]);
+                    const contextValues = contextKeys.map(key => consoleContext[itemId][key]);
+                    
+                    // Criar função que executa no contexto
+                    const func = new Function(...contextKeys, `
+                        ${command.includes('return') ? '' : 'return '}${command}
+                    `);
+                    
+                    const result = func(...contextValues);
+                    
+                    // Capturar variáveis declaradas (simples)
+                    if (command.includes('let ') || command.includes('var ') || command.includes('const ')) {
+                        const match = command.match(/(let|var|const)\s+(\w+)\s*=\s*(.+)/);
+                        if (match) {
+                            const varName = match[2];
+                            consoleContext[itemId][varName] = eval(match[3]);
+                            addToInteractiveConsole(itemId, `✓ Variável ${varName} definida`, 'success');
+                        }
+                    }
+                    
+                    // Mostrar output de console.log
+                    if (output.length > 0) {
+                        output.forEach(out => addToInteractiveConsole(itemId, out, 'output'));
+                    }
+                    
+                    // Mostrar resultado se não é undefined e não tem console.log
+                    if (result !== undefined && output.length === 0) {
+                        addToInteractiveConsole(itemId, `← ${result}`, 'result');
+                    }
+                    
+                } catch (error) {
+                    addToInteractiveConsole(itemId, `❌ ${error.message}`, 'error');
+                } finally {
+                    console.log = originalLog;
+                }
+            }
+
+            function executeConsolePython(itemId, command) {
+                // Simulação simples de Python
+                if (command.includes('print(')) {
+                    const match = command.match(/print\((.*)\)/);
+                    if (match) {
+                        let content = match[1];
+                        content = content.replace(/^["']|["']$/g, '');
+                        addToInteractiveConsole(itemId, content, 'output');
+                    }
+                } else if (command.includes('=')) {
+                    // Variável simples
+                    const match = command.match(/(\w+)\s*=\s*(.+)/);
+                    if (match) {
+                        const varName = match[1];
+                        const value = match[2];
+                        consoleContext[itemId][varName] = value;
+                        addToInteractiveConsole(itemId, `✓ Variável ${varName} = ${value}`, 'success');
+                    }
+                } else {
+                    addToInteractiveConsole(itemId, '💡 Dica: Use print("texto") para output', 'info');
+                }
+            }
+
+            function executeConsoleCpp(itemId, command) {
+                // Simulação simples de C++
+                if (command.includes('cout')) {
+                    const match = command.match(/cout\s*<<\s*"([^"]+)"/);
+                    if (match) {
+                        addToInteractiveConsole(itemId, match[1], 'output');
+                    } else {
+                        addToInteractiveConsole(itemId, '💡 Dica: Use cout << "texto"; para output', 'info');
+                    }
+                } else if (command.includes('int ') || command.includes('float ') || command.includes('string ')) {
+                    addToInteractiveConsole(itemId, '✓ Variável declarada', 'success');
+                } else {
+                    addToInteractiveConsole(itemId, '💡 Dica: Use cout << "texto"; para output', 'info');
+                }
+            }
+
+            function addToInteractiveConsole(itemId, message, type = 'output') {
+                const consoleOutput = document.getElementById(`console-output-${itemId}`);
+                if (!consoleOutput) return;
+
+                const colors = {
+                    'command': '#58a6ff',
+                    'output': '#c9d1d9',
+                    'result': '#3fb950',
+                    'error': '#f85149',
+                    'success': '#3fb950',
+                    'info': '#d29922'
+                };
+
+                const line = document.createElement('div');
+                line.style.color = colors[type] || colors.output;
+                line.style.marginBottom = '2px';
+                line.style.fontFamily = 'Consolas, monospace';
+                line.style.fontSize = '13px';
+                
+                if (type === 'command') {
+                    line.style.fontWeight = 'bold';
+                }
+                
+                line.textContent = message;
+                consoleOutput.appendChild(line);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
             // SINCRONIZAÇÃO EM TEMPO REAL
             let syncTimeouts = {};
             let currentFolderId = null;
@@ -1911,6 +2132,72 @@
                 folderItems = [];
                 itemIdCounter = 0;
                 renderFolderItems();
+            }
+
+            // Verificar se pasta está próxima do vencimento
+            function checkExpirationAndRenewal(folderId, createdAt, planType) {
+                if (planType === 'free' || !createdAt) return;
+                
+                const config = planConfigs[planType];
+                const now = Date.now();
+                const expirationTime = createdAt + (config.validityHours * 60 * 60 * 1000);
+                const timeLeft = expirationTime - now;
+                const hoursLeft = Math.ceil(timeLeft / (60 * 60 * 1000));
+                
+                // Se faltam 24 horas ou menos, oferecer renovação
+                if (hoursLeft <= 24 && hoursLeft > 0) {
+                    showRenewalOffer(folderId, planType, hoursLeft);
+                } else if (hoursLeft <= 0) {
+                    showExpiredMessage(folderId, planType);
+                }
+            }
+
+            // Mostrar oferta de renovação
+            function showRenewalOffer(folderId, planType, hoursLeft) {
+                const config = planConfigs[planType];
+                const renewPrice = config.renewPrice || config.price;
+                
+                const message = `🕐 Sua ${config.name} expira em ${hoursLeft}h!\n\n` +
+                              `💰 Renove por apenas R$ ${renewPrice.toFixed(2)} (50% de desconto)\n\n` +
+                              `Quer renovar agora?`;
+                
+                if (confirm(message)) {
+                    processRenewal(folderId, planType, renewPrice);
+                }
+            }
+
+            // Mostrar mensagem de pasta expirada
+            function showExpiredMessage(folderId, planType) {
+                const config = planConfigs[planType];
+                const renewPrice = config.renewPrice || config.price;
+                
+                alert(`⏰ Sua ${config.name} expirou!\n\n` +
+                      `💰 Renove por R$ ${renewPrice.toFixed(2)} para continuar usando.\n\n` +
+                      `Seus arquivos serão mantidos por 7 dias para recuperação.`);
+            }
+
+            // Processar renovação (simulado)
+            function processRenewal(folderId, planType, price) {
+                // Em produção, aqui seria integrado com sistema de pagamento
+                const confirmed = confirm(`💳 Confirmar pagamento de R$ ${price.toFixed(2)}?\n\n` +
+                                        `(Simulação - em produção seria direcionado para gateway de pagamento)`);
+                
+                if (confirmed) {
+                    // Simular pagamento e renovar pasta
+                    const newExpirationTime = Date.now() + (planConfigs[planType].validityHours * 60 * 60 * 1000);
+                    
+                    // Atualizar no Firebase (em produção)
+                    // firebase.database().ref(`folders/${folderId}`).update({
+                    //     expiresAt: newExpirationTime,
+                    //     renewedAt: Date.now()
+                    // });
+                    
+                    alert(`✅ ${planConfigs[planType].name} renovada com sucesso!\n\n` +
+                          `Nova data de expiração: ${new Date(newExpirationTime).toLocaleString('pt-BR')}`);
+                    
+                    // Recarregar página para refletir mudanças
+                    window.location.reload();
+                }
             }
 
             // Obter ícone do arquivo
@@ -2202,6 +2489,14 @@
                         alert('Esta pasta expirou!');
                         await db.ref('pastas-compartilhadas/' + folderId).remove();
                         return;
+                    }
+                    
+                    // Verificar se precisa de renovação (oferecer se for o criador)
+                    if (folder.planType && folder.planType !== 'free' && folder.createdAt) {
+                        // Dar um pequeno delay para a pasta carregar completamente
+                        setTimeout(() => {
+                            checkExpirationAndRenewal(folderId, folder.createdAt, folder.planType);
+                        }, 2000);
                     }
                     
                     // Verificar senha
