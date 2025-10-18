@@ -1485,6 +1485,9 @@
                         case 'python':
                             runPython(itemId, code);
                             break;
+                        case 'cpp':
+                            runCpp(itemId, code);
+                            break;
                         case 'html':
                             runHTML(itemId, code);
                             break;
@@ -1496,7 +1499,7 @@
                             break;
                         default:
                             addToConsole(itemId, `❌ Execução não suportada para ${language}`, 'error');
-                            addToConsole(itemId, 'Linguagens suportadas: JavaScript, Python, HTML, CSS, JSON', 'info');
+                            addToConsole(itemId, 'Linguagens suportadas: JavaScript, Python, C++, HTML, CSS, JSON', 'info');
                     }
                 } catch (error) {
                     addToConsole(itemId, `❌ Erro: ${error.message}`, 'error');
@@ -1586,7 +1589,63 @@
                     addToConsole(itemId, '💡 Dica: Use print("texto") para ver output', 'info');
                 }
                 
-                addToConsole(itemId, '✅ Simulação concluída', 'success');
+                addToConsole(itemId, '✅ Simulação Python concluída', 'success');
+            }
+
+            function runCpp(itemId, code) {
+                addToConsole(itemId, '⚡ Simulando execução C++...', 'info');
+                
+                // Simulação básica de C++
+                const lines = code.split('\n');
+                let output = [];
+                let hasMain = false;
+                
+                // Verificar se tem função main
+                for (let line of lines) {
+                    if (line.includes('int main') || line.includes('void main')) {
+                        hasMain = true;
+                        break;
+                    }
+                }
+                
+                if (!hasMain) {
+                    addToConsole(itemId, '⚠️ Aviso: Não foi encontrada função main()', 'warn');
+                }
+                
+                // Procurar por cout statements
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.includes('cout') && line.includes('<<')) {
+                        const match = line.match(/cout\s*<<\s*"([^"]+)"/);
+                        if (match) {
+                            output.push(match[1]);
+                        }
+                        // Capturar cout com endl
+                        const match2 = line.match(/cout\s*<<\s*([^;]+);/);
+                        if (match2 && !match) {
+                            let content = match2[1].trim();
+                            if (content.includes('"')) {
+                                content = content.replace(/"/g, '');
+                                output.push(content.replace(/\s*<<\s*endl/g, ''));
+                            }
+                        }
+                    }
+                    // Procurar por printf
+                    if (line.includes('printf')) {
+                        const match = line.match(/printf\s*\(\s*"([^"]+)"/);
+                        if (match) {
+                            output.push(match[1].replace(/\\n/g, ''));
+                        }
+                    }
+                }
+                
+                if (output.length > 0) {
+                    output.forEach(out => addToConsole(itemId, out, 'log'));
+                } else {
+                    addToConsole(itemId, '💡 Dica: Use cout << "texto"; ou printf("texto"); para ver output', 'info');
+                }
+                
+                addToConsole(itemId, '✅ Simulação C++ concluída', 'success');
             }
 
             function runHTML(itemId, code) {
@@ -1647,10 +1706,10 @@
                     clearTimeout(syncTimeouts[itemId]);
                 }
                 
-                // Criar novo timeout para sincronizar após 1 segundo de inatividade
+                // Criar novo timeout para sincronizar após 300ms de inatividade
                 syncTimeouts[itemId] = setTimeout(() => {
                     syncItemToFirestore(itemId);
-                }, 1000);
+                }, 300);
             }
 
             async function syncItemToFirestore(itemId) {
@@ -2443,6 +2502,9 @@
                         case 'python':
                             runSharedPython(index, code);
                             break;
+                        case 'cpp':
+                            runSharedCpp(index, code);
+                            break;
                         case 'html':
                             runSharedHTML(index, code);
                             break;
@@ -2523,6 +2585,49 @@
                 }
                 
                 addToSharedConsole(index, '✅ Simulação Python concluída', 'success');
+            }
+
+            function runSharedCpp(index, code) {
+                const lines = code.split('\n');
+                let output = [];
+                let hasMain = false;
+                
+                // Verificar se tem função main
+                for (let line of lines) {
+                    if (line.includes('int main') || line.includes('void main')) {
+                        hasMain = true;
+                        break;
+                    }
+                }
+                
+                if (!hasMain) {
+                    addToSharedConsole(index, '⚠️ Aviso: Não foi encontrada função main()', 'warn');
+                }
+                
+                // Procurar por cout e printf statements
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.includes('cout') && line.includes('<<')) {
+                        const match = line.match(/cout\s*<<\s*"([^"]+)"/);
+                        if (match) {
+                            output.push(match[1]);
+                        }
+                    }
+                    if (line.includes('printf')) {
+                        const match = line.match(/printf\s*\(\s*"([^"]+)"/);
+                        if (match) {
+                            output.push(match[1].replace(/\\n/g, ''));
+                        }
+                    }
+                }
+                
+                if (output.length > 0) {
+                    output.forEach(out => addToSharedConsole(index, out, 'log'));
+                } else {
+                    addToSharedConsole(index, '💡 Use cout << "texto"; ou printf("texto"); para ver output', 'info');
+                }
+                
+                addToSharedConsole(index, '✅ Simulação C++ concluída', 'success');
             }
 
             function runSharedHTML(index, code) {
