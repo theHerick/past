@@ -1938,6 +1938,7 @@
             try {
                 // Processar items - Upload de arquivos para Storage
                 console.log('🔄 Processando items de texto e código...');
+                console.log('📝 FolderItems antes do processamento:', folderItems);
                 
                 const processedItems = [];
                 
@@ -1973,6 +1974,8 @@
                     items: processedItems,
                     views: 0
                 };
+                
+                console.log('📦 Dados finais para salvar no Firebase:', folderData);
                 
                 console.log('� Salvando no Realtime Database...');
                 await db.ref('pastas-compartilhadas/' + uniqueId).set(folderData);
@@ -2213,7 +2216,11 @@
                 const contentDiv = document.getElementById('sharedContent');
                 
                 // Renderizar itens da pasta
+                console.log('🔍 Verificando items:', folder.items);
+                console.log('🔍 Quantidade de items:', folder.items ? folder.items.length : 'items é null/undefined');
+                
                 if (folder.items && folder.items.length > 0) {
+                    console.log('✅ Renderizando', folder.items.length, 'items');
                     folder.items.forEach((item, index) => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'folder-item';
@@ -2258,11 +2265,9 @@
                                     <div id="textView-${index}" style="background: white; border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; white-space: pre-wrap; line-height: 1.6;">
                                         ${item.content}
                                     </div>
-                                    ${currentUser && currentUser.uid === folder.userId ? `
                                     <button onclick="enableEditItem('${folder.id}', ${index}, 'text')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
                                         ✏️ Editar
                                     </button>
-                                    ` : ''}
                                 </div>
                             `;
                         } else if (item.type === 'code') {
@@ -2285,11 +2290,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    ${currentUser && currentUser.uid === folder.userId ? `
                                     <button onclick="enableEditItem('${folder.id}', ${index}, 'code')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
                                         ✏️ Editar
                                     </button>
-                                    ` : ''}
                                 </div>
                             `;
                         }
@@ -2308,6 +2311,9 @@
                         
                         contentDiv.appendChild(itemDiv);
                     });
+                } else {
+                    console.log('❌ Nenhum item encontrado na pasta');
+                    contentDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #586069;">Nenhum item encontrado nesta pasta</div>';
                 }
             }
 
@@ -2327,24 +2333,12 @@
 
             // Habilitar edição de item compartilhado
             window.enableEditItem = function(folderId, index, type) {
-                if (!currentUser) {
-                    alert('❌ Você precisa estar logado para editar!');
-                    showLoginModal();
-                    return;
-                }
-
                 // Carregar dados da pasta
-                db.collection('pastas').doc(folderId).get().then(doc => {
-                    if (!doc.exists) {
-                        alert('❌ Pasta não encontrada!');
-                        return;
-                    }
-
-                    const folder = doc.data();
+                db.ref('pastas-compartilhadas/' + folderId).once('value').then(snapshot => {
+                    const folder = snapshot.val();
                     
-                    // Verificar se é o dono
-                    if (folder.userId !== currentUser.uid) {
-                        alert('❌ Apenas o criador pode editar esta pasta!');
+                    if (!folder) {
+                        alert('❌ Pasta não encontrada!');
                         return;
                     }
 
@@ -2385,11 +2379,6 @@
 
             // Salvar edição de item
             window.saveEditItem = async function(folderId, index, type) {
-                if (!currentUser) {
-                    alert('❌ Você precisa estar logado!');
-                    return;
-                }
-
                 try {
                     const snapshot = await db.ref('pastas-compartilhadas/' + folderId).once('value');
                     const folder = snapshot.val();
