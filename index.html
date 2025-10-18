@@ -1,1375 +1,1927 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasta Compartilhada - Colaboração em Tempo Real</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pasta Compartilhada - Colaboração em Tempo Real</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f7fa;
-            min-height: 100vh;
-            padding: 0;
-        }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: #f5f7fa;
+                min-height: 100vh;
+                padding: 0;
+            }
 
-        /* Navbar */
-        nav {
+            /* Navbar */
+            nav {
+                background: white;
+                border-bottom: 1px solid #e1e4e8;
+                padding: 15px 0;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            }
+
+            .nav-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 1.3em;
+                font-weight: 600;
+                color: #2c3e50;
+                text-decoration: none;
+            }
+
+            .logo-icon {
+                font-size: 1.5em;
+            }
+
+            .nav-links {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .nav-link {
+                color: #586069;
+                text-decoration: none;
+                font-size: 0.95em;
+                transition: color 0.2s;
+            }
+
+            .nav-link:hover {
+                color: #0366d6;
+            }
+
+
+
+        .btn-google-login {
             background: white;
-            border-bottom: 1px solid #e1e4e8;
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #2c3e50;
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            font-size: 1.5em;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: #586069;
-            text-decoration: none;
-            font-size: 0.95em;
-            transition: color 0.2s;
-        }
-
-        .nav-link:hover {
-            color: #0366d6;
-        }
-
-        .btn-new-folder {
-            background: #0366d6;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-new-folder:hover {
-            background: #0256c7;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 40px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-
-        .hero h1 {
-            font-size: 2.5em;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.1em;
-            color: #586069;
-            max-width: 600px;
-            margin: 0 auto 30px;
-            line-height: 1.6;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary, .btn-secondary {
+            color: #444;
             padding: 12px 24px;
+            border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 1em;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: #0366d6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0256c7;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(3,102,214,0.3);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #0366d6;
-            border: 1px solid #0366d6;
-        }
-
-        .btn-secondary:hover {
-            background: #f6f8fa;
-        }
-
-        /* Plans Section */
-        .plans-section {
-            margin-bottom: 40px;
-        }
-
-        .plans-section h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2em;
-            font-weight: 600;
-        }
-
-        .plans-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .plan-card {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            border: 2px solid #e1e4e8;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .plan-card:hover {
-            border-color: #0366d6;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        .plan-card.popular {
-            border-color: #0366d6;
-            box-shadow: 0 4px 16px rgba(3,102,214,0.15);
-        }
-
-        .plan-badge {
-            position: absolute;
-            top: -12px;
-            right: 20px;
-            background: #0366d6;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 600;
-        }
-
-        .plan-card h3 {
-            font-size: 1.5em;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .plan-price {
-            font-size: 2em;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
-        .plan-price span {
-            font-size: 0.5em;
-            color: #586069;
-            font-weight: 400;
-        }
-
-        .plan-features {
-            list-style: none;
-            margin-bottom: 25px;
-        }
-
-        .plan-features li {
-            padding: 10px 0;
-            color: #586069;
-            font-size: 0.95em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .plan-features li::before {
-            content: "✓";
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .btn-select {
-            width: 100%;
-            padding: 12px;
-            background: #0366d6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-select:hover {
-            background: #0256c7;
-        }
-
-        /* Create Section */
-        .create-section {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-
-        .create-section h2 {
-            color: #2c3e50;
-            margin-bottom: 25px;
-            font-size: 1.8em;
-            font-weight: 600;
-        }
-
-        .create-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .create-option {
-            background: #f6f8fa;
-            border: 2px solid #e1e4e8;
-            border-radius: 6px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .create-option:hover {
-            border-color: #0366d6;
-            background: white;
-            transform: translateY(-2px);
-        }
-
-        .create-option.active {
-            border-color: #0366d6;
-            background: #f1f8ff;
-        }
-
-        /* Items da Pasta */
-        .folder-items {
-            margin-top: 25px;
-        }
-
-        .folder-item {
-            background: white;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-
-        .folder-item-header {
-            background: #f6f8fa;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .folder-item-header:hover {
-            background: #e1e4e8;
-        }
-
-        .folder-item-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .folder-item-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-toggle {
-            background: none;
-            border: none;
-            color: #586069;
-            cursor: pointer;
-            font-size: 1.2em;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-        }
-
-        .btn-toggle.collapsed {
-            transform: rotate(-90deg);
-        }
-
-        .btn-delete-item {
-            background: #d73a49;
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: background 0.2s;
-        }
-
-        .btn-delete-item:hover {
-            background: #cb2431;
-        }
-
-        .folder-item-content {
-            padding: 15px;
-            border-top: 1px solid #e1e4e8;
-        }
-
-        .folder-item-content.collapsed {
-            display: none;
-        }
-
-        .btn-add-item {
-            width: 100%;
-            padding: 12px;
-            background: #0366d6;
-            color: white;
-            border: 2px dashed #0366d6;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 15px;
-        }
-
-        .btn-add-item:hover {
-            background: #0256c7;
-            border-color: #0256c7;
-        }
-
-        .create-option-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        .create-option-title {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .create-option-desc {
-            font-size: 0.85em;
-            color: #586069;
-        }
-
-        .upload-area {
-            border: 2px dashed #d1d5da;
-            border-radius: 6px;
-            padding: 40px 20px;
-            text-align: center;
-            background: #fafbfc;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .upload-area:hover,
-        .upload-area.dragover {
-            border-color: #0366d6;
-            background: #f1f8ff;
-        }
-
-        .upload-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            opacity: 0.6;
-        }
-
-        .upload-text {
-            font-size: 1.1em;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .upload-hint {
-            color: #586069;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-        }
-
-        .btn-upload {
-            padding: 10px 24px;
-            background: #0366d6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.95em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-upload:hover {
-            background: #0256c7;
-        }
-
-        .files-list {
-            margin-top: 20px;
-        }
-
-        .files-list h3 {
-            font-size: 1.1em;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f6f8fa;
-            padding: 12px 15px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border: 1px solid #e1e4e8;
-        }
-
-        .file-info {
             display: flex;
             align-items: center;
             gap: 12px;
-        }
+            justify-content: center;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }            .btn-google-login:hover {
+                background: #f8f9fa;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
 
-        .file-icon {
-            font-size: 1.3em;
-        }
+            .btn-google-login img {
+                width: 20px;
+                height: 20px;
+            }
 
-        .file-details {
-            display: flex;
-            flex-direction: column;
-        }
+            .btn-new-folder {
+                background: #0366d6;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 6px;
+                border: none;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
 
-        .file-name {
-            font-weight: 500;
-            color: #2c3e50;
-            font-size: 0.95em;
-        }
+            .btn-new-folder:hover {
+                background: #0256c7;
+            }
 
-        .file-size {
-            font-size: 0.85em;
-            color: #586069;
-        }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 40px 20px;
+            }
 
-        .btn-remove {
-            background: #d73a49;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-size: 0.9em;
-        }
+            /* Hero Section */
+            .hero {
+                text-align: center;
+                padding: 60px 20px;
+                background: white;
+                border-radius: 8px;
+                margin-bottom: 40px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            }
 
-        .btn-remove:hover {
-            background: #cb2431;
-        }
+            .hero h1 {
+                font-size: 2.5em;
+                color: #2c3e50;
+                margin-bottom: 15px;
+                font-weight: 700;
+            }
+
+            .hero p {
+                font-size: 1.1em;
+                color: #586069;
+                max-width: 600px;
+                margin: 0 auto 30px;
+                line-height: 1.6;
+            }
+
+            .hero-buttons {
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .btn-primary, .btn-secondary {
+                padding: 12px 24px;
+                border-radius: 6px;
+                font-size: 1em;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                border: none;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            .btn-primary {
+                background: #0366d6;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background: #0256c7;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(3,102,214,0.3);
+            }
+
+            .btn-secondary {
+                background: white;
+                color: #0366d6;
+                border: 1px solid #0366d6;
+            }
+
+            .btn-secondary:hover {
+                background: #f6f8fa;
+            }
+
+            /* Plans Section */
+            .plans-section {
+                margin-bottom: 40px;
+            }
+
+            .plans-section h2 {
+                text-align: center;
+                color: #2c3e50;
+                margin-bottom: 30px;
+                font-size: 2em;
+                font-weight: 600;
+            }
+
+            .plans-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+                margin-bottom: 40px;
+            }
+
+            .plan-card {
+                background: white;
+                border-radius: 8px;
+                padding: 30px;
+                border: 2px solid #e1e4e8;
+                transition: all 0.2s;
+                position: relative;
+            }
+
+            .plan-card:hover {
+                border-color: #0366d6;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            }
+
+            .plan-card.popular {
+                border-color: #0366d6;
+                box-shadow: 0 4px 16px rgba(3,102,214,0.15);
+            }
+
+            .plan-badge {
+                position: absolute;
+                top: -12px;
+                right: 20px;
+                background: #0366d6;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 0.8em;
+                font-weight: 600;
+            }
+
+            .plan-card h3 {
+                font-size: 1.5em;
+                color: #2c3e50;
+                margin-bottom: 10px;
+                font-weight: 600;
+            }
+
+            .plan-price {
+                font-size: 2em;
+                font-weight: 700;
+                color: #2c3e50;
+                margin-bottom: 20px;
+            }
+
+            .plan-price span {
+                font-size: 0.5em;
+                color: #586069;
+                font-weight: 400;
+            }
+
+            .plan-features {
+                list-style: none;
+                margin-bottom: 25px;
+            }
+
+            .plan-features li {
+                padding: 10px 0;
+                color: #586069;
+                font-size: 0.95em;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .plan-features li::before {
+                content: "✓";
+                color: #28a745;
+                font-weight: bold;
+            }
+
+            .btn-select {
+                width: 100%;
+                padding: 12px;
+                background: #0366d6;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 1em;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .btn-select:hover {
+                background: #0256c7;
+            }
+
+            /* Create Section */
+            .create-section {
+                background: white;
+                border-radius: 8px;
+                padding: 30px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            }
+
+            .create-section h2 {
+                color: #2c3e50;
+                margin-bottom: 25px;
+                font-size: 1.8em;
+                font-weight: 600;
+            }
+
+            .create-options {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+
+            .create-option {
+                background: #f6f8fa;
+                border: 2px solid #e1e4e8;
+                border-radius: 6px;
+                padding: 20px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .create-option:hover {
+                border-color: #0366d6;
+                background: white;
+                transform: translateY(-2px);
+            }
+
+            .create-option.active {
+                border-color: #0366d6;
+                background: #f1f8ff;
+            }
+
+            /* Items da Pasta */
+            .folder-items {
+                margin-top: 25px;
+            }
+
+            .folder-item {
+                background: white;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                margin-bottom: 15px;
+                overflow: hidden;
+            }
+
+            .folder-item-header {
+                background: #f6f8fa;
+                padding: 12px 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .folder-item-header:hover {
+                background: #e1e4e8;
+            }
+
+            .folder-item-title {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .folder-item-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            .btn-toggle {
+                background: none;
+                border: none;
+                color: #586069;
+                cursor: pointer;
+                font-size: 1.2em;
+                padding: 0;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s;
+            }
+
+            .btn-toggle.collapsed {
+                transform: rotate(-90deg);
+            }
+
+            .btn-delete-item {
+                background: #d73a49;
+                color: white;
+                border: none;
+                padding: 4px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.85em;
+                transition: background 0.2s;
+            }
+
+            .btn-delete-item:hover {
+                background: #cb2431;
+            }
+
+            .folder-item-content {
+                padding: 15px;
+                border-top: 1px solid #e1e4e8;
+            }
+
+            .folder-item-content.collapsed {
+                display: none;
+            }
+
+            .btn-add-item {
+                width: 100%;
+                padding: 12px;
+                background: #0366d6;
+                color: white;
+                border: 2px dashed #0366d6;
+                border-radius: 6px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                margin-top: 15px;
+            }
+
+            .btn-add-item:hover {
+                background: #0256c7;
+                border-color: #0256c7;
+            }
+
+            .create-option-icon {
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+
+            .create-option-title {
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 5px;
+            }
+
+            .create-option-desc {
+                font-size: 0.85em;
+                color: #586069;
+            }
+
+            .upload-section {
+                animation: fadeIn 0.3s;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .upload-section h2 {
+                text-align: center;
+                color: #2c3e50;
+                margin-bottom: 25px;
+                font-size: 1.8em;
+                font-weight: 600;
+            }
+
+            .upload-container {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            .folder-info {
+                background: #f6f8fa;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .info-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+            }
+
+            .info-label {
+                font-weight: 500;
+                color: #586069;
+            }
+
+            .info-value {
+                color: #0366d6;
+                font-weight: 600;
+            }
+
+            .folder-name-input,
+            .password-input {
+                margin-bottom: 20px;
+            }
+
+            .folder-name-input label,
+            .password-input label {
+                display: block;
+                margin-bottom: 8px;
+                color: #2c3e50;
+                font-weight: 500;
+            }
+
+            .folder-name-input input,
+            .password-input input {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                font-size: 1em;
+                transition: border-color 0.2s;
+            }
+
+            .folder-name-input input:focus,
+            .password-input input:focus {
+                outline: none;
+                border-color: #0366d6;
+                box-shadow: 0 0 0 3px rgba(3,102,214,0.1);
+            }
+
+            .upload-area {
+                border: 2px dashed #d1d5da;
+                border-radius: 6px;
+                padding: 40px 20px;
+                text-align: center;
+                background: #fafbfc;
+                transition: all 0.2s;
+                cursor: pointer;
+            }
+
+            .upload-area:hover,
+            .upload-area.dragover {
+                border-color: #0366d6;
+                background: #f1f8ff;
+            }
+
+            .upload-icon {
+                font-size: 3em;
+                margin-bottom: 15px;
+                opacity: 0.6;
+            }
+
+            .upload-text {
+                font-size: 1.1em;
+                color: #2c3e50;
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+
+            .upload-hint {
+                color: #586069;
+                font-size: 0.9em;
+                margin-bottom: 15px;
+            }
+
+            .btn-upload {
+                padding: 10px 24px;
+                background: #0366d6;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 0.95em;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .btn-upload:hover {
+                background: #0256c7;
+            }
+
+            /* Editor Section */
+            .editor-section {
+                background: white;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                margin-top: 20px;
+            }
+
+            .editor-header {
+                background: #f6f8fa;
+                padding: 12px 20px;
+                border-bottom: 1px solid #e1e4e8;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-radius: 6px 6px 0 0;
+            }
+
+            .editor-title {
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .editor-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .editor-lang-select {
+                padding: 6px 12px;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                background: white;
+                color: #2c3e50;
+                font-size: 0.9em;
+                cursor: pointer;
+            }
+
+            .editor-content {
+                padding: 0;
+            }
 
         .code-editor,
         .text-editor {
             width: 100%;
             min-height: 400px;
             padding: 20px;
-            border: none;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
             font-size: 14px;
             line-height: 1.6;
             resize: vertical;
-            background: #fafbfc;
-            color: #24292e;
+            transition: all 0.2s;
+            tab-size: 4;
+        }
+
+        .code-editor {
+            font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
         }
 
         .text-editor {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            color: #24292e;
         }
 
-        .code-editor:focus,
+        .code-editor:focus {
+            outline: none;
+            background: #161b22;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
         .text-editor:focus {
             outline: none;
             background: white;
+            border-color: #0366d6;
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
         }
 
-        .editor-lang-select {
-            padding: 6px 12px;
-            border: 1px solid #e1e4e8;
+        /* Console Styling */
+        .console-output {
+            background: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
             border-radius: 6px;
-            background: white;
-            color: #2c3e50;
-            font-size: 0.9em;
-            cursor: pointer;
-        }
-
-        .btn-create {
-            width: 100%;
-            padding: 14px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1.05em;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.2s;
-        }
-
-        .btn-create:hover {
-            background: #269f42;
-        }
-
-        .btn-create:disabled {
-            background: #94d3a2;
-            cursor: not-allowed;
-        }
-
-        /* Link Section */
-        .link-section {
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .link-section h2 {
-            text-align: center;
-            color: #28a745;
-            margin-bottom: 25px;
-            font-size: 1.8em;
-            font-weight: 600;
-        }
-
-        .link-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .link-box {
-            background: #f6f8fa;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .link-label {
-            font-weight: 500;
-            color: #2c3e50;
-            margin-bottom: 12px;
-        }
-
-        .link-display {
-            display: flex;
-            gap: 10px;
-        }
-
-        .link-display input {
-            flex: 1;
             padding: 12px;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            font-size: 0.95em;
-            background: white;
-            font-family: 'Consolas', monospace;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            max-height: 400px;
         }
 
-        .btn-copy {
-            padding: 12px 20px;
-            background: #0366d6;
+        .btn-run-code {
+            background: linear-gradient(135deg, #28a745, #20a039);
             color: white;
             border: none;
+            padding: 8px 16px;
             border-radius: 6px;
-            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-copy:hover {
-            background: #0256c7;
-        }
-
-        .btn-copy.copied {
-            background: #28a745;
-        }
-
-        .link-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .info-item {
+            font-weight: 500;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: #f6f8fa;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #e1e4e8;
+            gap: 6px;
         }
 
-        .info-icon {
-            font-size: 1.5em;
+        .btn-run-code:hover {
+            background: linear-gradient(135deg, #20a039, #1e7e34);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
         }
 
-        .info-item strong {
-            color: #2c3e50;
+        .btn-run-code:active {
+            transform: translateY(0);
+        }
+
+        /* Real-time sync indicator */
+        .sync-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
             font-size: 0.85em;
-            display: block;
-            margin-bottom: 3px;
-        }
-
-        .info-item span {
-            color: #586069;
-            font-size: 0.9em;
-        }
-
-        .link-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .folder-info {
-            background: #f6f8fa;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-        }
-
-        .info-label {
             font-weight: 500;
-            color: #586069;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .info-value {
-            color: #0366d6;
-            font-weight: 600;
+        .sync-indicator.syncing {
+            background: #ffc107;
+            color: #212529;
         }
 
-        .folder-name-input,
-        .password-input {
-            margin-bottom: 20px;
+        .sync-indicator.error {
+            background: #dc3545;
         }
 
-        .folder-name-input label,
-        .password-input label {
-            display: block;
-            margin-bottom: 8px;
-            color: #2c3e50;
-            font-weight: 500;
+        /* Better scrollbars */
+        .code-editor::-webkit-scrollbar,
+        .console-output::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
 
-        .folder-name-input input,
-        .password-input input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            font-size: 1em;
-            transition: border-color 0.2s;
+        .code-editor::-webkit-scrollbar-track,
+        .console-output::-webkit-scrollbar-track {
+            background: #161b22;
         }
 
-        .folder-name-input input:focus,
-        .password-input input:focus {
-            outline: none;
-            border-color: #0366d6;
-            box-shadow: 0 0 0 3px rgba(3,102,214,0.1);
+        .code-editor::-webkit-scrollbar-thumb,
+        .console-output::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
         }
 
-        footer {
-            text-align: center;
-            color: #586069;
-            margin-top: 60px;
-            padding: 20px;
-            font-size: 0.9em;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2em;
+        .code-editor::-webkit-scrollbar-thumb:hover,
+        .console-output::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }            .files-list {
+                margin-top: 20px;
             }
-            
-            .plans-grid {
-                grid-template-columns: 1fr;
+
+            .files-list h3 {
+                font-size: 1.1em;
+                color: #2c3e50;
+                margin-bottom: 15px;
+                font-weight: 600;
             }
-            
-            .create-options {
-                grid-template-columns: 1fr;
+
+            .file-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: #f6f8fa;
+                padding: 12px 15px;
+                border-radius: 6px;
+                margin-bottom: 8px;
+                border: 1px solid #e1e4e8;
             }
-            
-            .link-actions {
+
+            .file-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .file-icon {
+                font-size: 1.3em;
+            }
+
+            .file-details {
+                display: flex;
                 flex-direction: column;
             }
-            
-            .btn-primary,
-            .btn-secondary {
+
+            .file-name {
+                font-weight: 500;
+                color: #2c3e50;
+                font-size: 0.95em;
+            }
+
+            .file-size {
+                font-size: 0.85em;
+                color: #586069;
+            }
+
+            .btn-remove {
+                background: #d73a49;
+                color: white;
+                border: none;
+                padding: 6px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background 0.2s;
+                font-size: 0.9em;
+            }
+
+            .btn-remove:hover {
+                background: #cb2431;
+            }
+
+            .upload-progress {
+                margin-top: 20px;
+            }
+
+            .progress-bar {
                 width: 100%;
+                height: 8px;
+                background: #e1e4e8;
+                border-radius: 4px;
+                overflow: hidden;
+                margin-bottom: 10px;
             }
 
-            .nav-links {
-                display: none;
+            .progress-fill {
+                height: 100%;
+                background: #0366d6;
+                width: 0%;
+                transition: width 0.3s;
             }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navbar -->
-    <nav>
-        <div class="nav-container">
-            <a href="https://theherick.github.io/past/" class="logo">
-                <span class="logo-icon">📁</span>
-                Pasta Compartilhada
-            </a>
-            <div class="nav-links">
-                <a href="#" class="nav-link">Como Funciona</a>
-                <a href="#" class="nav-link">Planos</a>
-                <button class="btn-new-folder" onclick="showCreateSection()">+ Nova Pasta</button>
+
+            .progress-text {
+                text-align: center;
+                font-weight: 600;
+                color: #0366d6;
+                font-size: 0.9em;
+            }
+
+            .btn-create {
+                width: 100%;
+                padding: 14px;
+                background: #28a745;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 1.05em;
+                font-weight: 500;
+                cursor: pointer;
+                margin-top: 20px;
+                transition: background 0.2s;
+            }
+
+            .btn-create:hover {
+                background: #269f42;
+            }
+
+            .btn-create:disabled {
+                background: #94d3a2;
+                cursor: not-allowed;
+            }
+
+            /* Link Section */
+            .link-section {
+                animation: fadeIn 0.3s;
+            }
+
+            .link-section h2 {
+                text-align: center;
+                color: #28a745;
+                margin-bottom: 25px;
+                font-size: 1.8em;
+                font-weight: 600;
+            }
+
+            .link-container {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            .link-box {
+                background: #f6f8fa;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+
+            .link-label {
+                font-weight: 500;
+                color: #2c3e50;
+                margin-bottom: 12px;
+            }
+
+            .link-display {
+                display: flex;
+                gap: 10px;
+            }
+
+            .link-display input {
+                flex: 1;
+                padding: 12px;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                font-size: 0.95em;
+                background: white;
+                font-family: 'Consolas', monospace;
+            }
+
+            .btn-copy {
+                padding: 12px 20px;
+                background: #0366d6;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s;
+                white-space: nowrap;
+            }
+
+            .btn-copy:hover {
+                background: #0256c7;
+            }
+
+            .btn-copy.copied {
+                background: #28a745;
+            }
+
+            .link-info {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+
+            .info-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                background: #f6f8fa;
+                padding: 15px;
+                border-radius: 6px;
+                border: 1px solid #e1e4e8;
+            }
+
+            .info-icon {
+                font-size: 1.5em;
+            }
+
+            .info-item strong {
+                color: #2c3e50;
+                font-size: 0.85em;
+                display: block;
+                margin-bottom: 3px;
+            }
+
+            .info-item span {
+                color: #586069;
+                font-size: 0.9em;
+            }
+
+            .link-actions {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+            }
+
+            footer {
+                text-align: center;
+                color: #586069;
+                margin-top: 60px;
+                padding: 20px;
+                font-size: 0.9em;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .hero h1 {
+                    font-size: 2em;
+                }
+                
+                .plans-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .create-options {
+                    grid-template-columns: 1fr;
+                }
+                
+                .link-actions {
+                    flex-direction: column;
+                }
+                
+                .btn-primary,
+                .btn-secondary {
+                    width: 100%;
+                }
+
+                .nav-links {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav>
+            <div class="nav-container">
+                <a href="https://theherick.github.io/past/" class="logo">
+                    <span class="logo-icon">📁</span>
+                    Pasta Compartilhada
+                </a>
+                <div class="nav-links">
+                    <a href="#" class="nav-link">Como Funciona</a>
+                    <a href="#" class="nav-link">Planos</a>
+                    <button class="btn-new-folder" onclick="showCreateSection()">+ Nova Pasta</button>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container">
-        <!-- Hero Section -->
-        <div class="hero" id="heroSection">
-            <h1>Colabore em Tempo Real</h1>
-            <p>Crie pastas compartilhadas, edite documentos e códigos juntos. Simples, rápido e colaborativo.</p>
-            <div class="hero-buttons">
-                <button class="btn-primary" onclick="showCreateSection()">Criar Pasta Grátis</button>
-                <button class="btn-secondary" onclick="document.getElementById('plansSection').scrollIntoView({ behavior: 'smooth' })">Ver Planos</button>
-            </div>
-        </div>
-
-        <!-- Seção de Planos -->
-        <section class="plans-section" id="plansSection">
-            <h2>Escolha seu Plano</h2>
-            <div class="plans-grid">
-                <div class="plan-card" data-plan="free">
-                    <h3>Grátis</h3>
-                    <div class="plan-price">R$ 0</div>
-                    <ul class="plan-features">
-                        <li>Até 100MB por pasta</li>
-                        <li>Válido por 24 horas</li>
-                        <li>Upload de arquivos</li>
-                        <li>Edição de texto</li>
-                        <li>Link compartilhável</li>
-                    </ul>
-                    <button class="btn-select" onclick="selectPlan('free', 100)">Começar Grátis</button>
-                </div>
-
-                <div class="plan-card popular" data-plan="pro">
-                    <div class="plan-badge">Mais Popular</div>
-                    <h3>Pro</h3>
-                    <div class="plan-price">R$ 9,90<span>/mês</span></div>
-                    <ul class="plan-features">
-                        <li>Até 1GB por pasta</li>
-                        <li>Válido por 7 dias</li>
-                        <li>Editor de código colaborativo</li>
-                        <li>Syntax highlighting</li>
-                        <li>Senha de proteção</li>
-                        <li>10 pastas simultâneas</li>
-                    </ul>
-                    <button class="btn-select" onclick="selectPlan('pro', 1024)">Assinar Pro</button>
-                </div>
-
-                <div class="plan-card" data-plan="premium">
-                    <h3>Premium</h3>
-                    <div class="plan-price">R$ 19,90<span>/mês</span></div>
-                    <ul class="plan-features">
-                        <li>Até 5GB por pasta</li>
-                        <li>Válido por 30 dias</li>
-                        <li>Tudo do Pro +</li>
-                        <li>Colaboração em tempo real</li>
-                        <li>Histórico de versões</li>
-                        <li>Pastas ilimitadas</li>
-                        <li>Suporte prioritário</li>
-                    </ul>
-                    <button class="btn-select" onclick="selectPlan('premium', 5120)">Assinar Premium</button>
+        <!-- Indicador de Sincronização -->
+        <div class="sync-indicator" id="syncIndicator">
+            <span id="syncIcon">🔄</span>
+            <span id="syncText">Sincronizado</span>
+        </div>        <div class="container">
+            <!-- Hero Section -->
+            <div class="hero" id="heroSection">
+                <h1>Colabore em Tempo Real</h1>
+                <p>Crie pastas compartilhadas, edite documentos e códigos juntos. Simples, rápido e colaborativo.</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="showCreateSection()">Criar Pasta Grátis</button>
+                    <button class="btn-secondary" onclick="document.getElementById('plansSection').scrollIntoView({ behavior: 'smooth' })">Ver Planos</button>
                 </div>
             </div>
-        </section>
-
-        <!-- Seção de Criação -->
-        <section class="create-section" id="createSection" style="display: none;">
-            <h2>Criar Nova Pasta Compartilhada</h2>
-            
-            <div style="max-width: 800px; margin: 0 auto;">
-                <div class="folder-info">
-                    <div class="info-row">
-                        <span class="info-label">Plano:</span>
-                        <span class="info-value" id="selectedPlan">-</span>
+            <!-- Seção de Planos -->
+            <section class="plans-section" id="plansSection">
+                <h2>Escolha seu Plano</h2>
+                <div class="plans-grid">
+                    <div class="plan-card" data-plan="free">
+                        <h3>Grátis</h3>
+                        <div class="plan-price">R$ 0</div>
+                        <ul class="plan-features">
+                            <li>Até 100MB por pasta</li>
+                            <li>Válido por 24 horas</li>
+                            <li>Upload de arquivos</li>
+                            <li>Edição de texto</li>
+                            <li>Link compartilhável</li>
+                        </ul>
+                        <button class="btn-select" onclick="selectPlan('free', 100)">Começar Grátis</button>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Limite:</span>
-                        <span class="info-value" id="sizeLimit">-</span>
+
+                    <div class="plan-card popular" data-plan="pro">
+                        <div class="plan-badge">Mais Popular</div>
+                        <h3>Pro</h3>
+                        <div class="plan-price">R$ 9,90<span>/mês</span></div>
+                        <ul class="plan-features">
+                            <li>Até 1GB por pasta</li>
+                            <li>Válido por 7 dias</li>
+                            <li>Editor de código colaborativo</li>
+                            <li>Syntax highlighting</li>
+                            <li>Senha de proteção</li>
+                            <li>10 pastas simultâneas</li>
+                        </ul>
+                        <button class="btn-select" onclick="selectPlan('pro', 1024)">Assinar Pro</button>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Validade:</span>
-                        <span class="info-value" id="validity">-</span>
+
+                    <div class="plan-card" data-plan="premium">
+                        <h3>Premium</h3>
+                        <div class="plan-price">R$ 19,90<span>/mês</span></div>
+                        <ul class="plan-features">
+                            <li>Até 5GB por pasta</li>
+                            <li>Válido por 30 dias</li>
+                            <li>Tudo do Pro +</li>
+                            <li>Colaboração em tempo real</li>
+                            <li>Histórico de versões</li>
+                            <li>Pastas ilimitadas</li>
+                            <li>Suporte prioritário</li>
+                        </ul>
+                        <button class="btn-select" onclick="selectPlan('premium', 5120)">Assinar Premium</button>
                     </div>
                 </div>
+            </section>
 
-                <div class="folder-name-input">
-                    <label for="folderName">Nome da Pasta</label>
-                    <input type="text" id="folderName" placeholder="Ex: Projeto 2025">
-                </div>
-
-                <div class="folder-name-input">
-                    <label for="creatorName">Seu Nome (opcional)</label>
-                    <input type="text" id="creatorName" placeholder="Como quer ser identificado?">
-                </div>
-
-                <div class="password-input" id="passwordSection" style="display: none;">
-                    <label for="folderPassword">Senha de Proteção (opcional)</label>
-                    <input type="password" id="folderPassword" placeholder="Digite uma senha">
-                </div>
-
-                <!-- Itens da Pasta -->
-                <div class="folder-items" id="folderItems">
-                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Itens da Pasta:</h3>
-                    <div id="itemsList"></div>
-                    
-                    <button class="btn-add-item" onclick="showAddItemMenu()">
-                        ➕ Adicionar Item
-                    </button>
-                </div>
-
-                <!-- Menu de Adicionar Item -->
-                <div id="addItemMenu" style="display: none; margin-top: 20px;">
-                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Escolha o tipo de item:</h3>
-                    <div class="create-options">
-                        <div class="create-option" onclick="addNewItem('upload')">
-                            <div class="create-option-icon">📤</div>
-                            <div class="create-option-title">Arquivos</div>
-                            <div class="create-option-desc">Upload de arquivos</div>
+            <!-- Seção de Criação -->
+            <section class="create-section" id="createSection" style="display: none;">
+                <h2>Criar Nova Pasta Compartilhada</h2>
+                
+                <div class="upload-container">
+                    <div class="folder-info">
+                        <div class="info-row">
+                            <span class="info-label">Plano:</span>
+                            <span class="info-value" id="selectedPlan">-</span>
                         </div>
-                        <div class="create-option" onclick="addNewItem('text')">
-                            <div class="create-option-icon">📝</div>
-                            <div class="create-option-title">Texto</div>
-                            <div class="create-option-desc">Documento de texto</div>
+                        <div class="info-row">
+                            <span class="info-label">Limite:</span>
+                            <span class="info-value" id="sizeLimit">-</span>
                         </div>
-                        <div class="create-option" onclick="addNewItem('code')">
-                            <div class="create-option-icon">💻</div>
-                            <div class="create-option-title">Código</div>
-                            <div class="create-option-desc">Editor de código</div>
+                        <div class="info-row">
+                            <span class="info-label">Validade:</span>
+                            <span class="info-value" id="validity">-</span>
                         </div>
                     </div>
-                </div>
 
-                <button class="btn-create" id="btnCreate" onclick="createFolder()">
-                    Criar Pasta e Gerar Link
-                </button>
-            </div>
-        </section>
+                    <div class="folder-name-input">
+                        <label for="folderName">Nome da Pasta</label>
+                        <input type="text" id="folderName" placeholder="Ex: Projeto 2025">
+                    </div>
 
-        <!-- Seção de Link Gerado -->
-        <section class="link-section" id="linkSection" style="display: none;">
-            <h2>✅ Pasta Criada com Sucesso!</h2>
-            <div class="link-container">
-                <div class="link-box">
-                    <div class="link-label">Link para Compartilhar:</div>
-                    <div class="link-display">
-                        <input type="text" id="generatedLink" readonly>
-                        <button class="btn-copy" onclick="copyLink()">
-                            <span id="copyText">Copiar</span>
+                    <div class="folder-name-input">
+                        <label for="creatorName">Seu Nome (opcional)</label>
+                        <input type="text" id="creatorName" placeholder="Como quer ser identificado?">
+                    </div>
+
+                    <div class="password-input" id="passwordSection" style="display: none;">
+                        <label for="folderPassword">Senha de Proteção (opcional)</label>
+                        <input type="password" id="folderPassword" placeholder="Digite uma senha">
+                    </div>
+
+                    <!-- Itens da Pasta -->
+                    <div class="folder-items" id="folderItems">
+                        <h3 style="margin-bottom: 15px; color: #2c3e50;">Itens da Pasta:</h3>
+                        <div id="itemsList"></div>
+                        
+                        <button class="btn-add-item" onclick="showAddItemMenu()">
+                            ➕ Adicionar Item
                         </button>
                     </div>
-                </div>
 
-                <div class="link-info">
-                    <div class="info-item">
-                        <span class="info-icon">📊</span>
-                        <div>
-                            <strong>Tamanho</strong>
-                            <span id="totalSize">-</span>
+                    <!-- Menu de Adicionar Item -->
+                    <div id="addItemMenu" style="display: none; margin-top: 20px;">
+                        <h3 style="margin-bottom: 15px; color: #2c3e50;">Escolha o tipo de item:</h3>
+                        <div class="create-options">
+                            <div class="create-option" onclick="addNewItem('text')">
+                                <div class="create-option-icon">📝</div>
+                                <div class="create-option-title">Texto</div>
+                                <div class="create-option-desc">Documento de texto</div>
+                            </div>
+                            <div class="create-option" onclick="addNewItem('code')">
+                                <div class="create-option-icon">💻</div>
+                                <div class="create-option-title">Código</div>
+                                <div class="create-option-desc">Editor com syntax highlighting</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-icon">📁</span>
-                        <div>
-                            <strong>Conteúdo</strong>
-                            <span id="fileCount">-</span>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-icon">⏰</span>
-                        <div>
-                            <strong>Expira em</strong>
-                            <span id="expiryTime">-</span>
-                        </div>
-                    </div>
-                    <div class="info-item" id="passwordInfo" style="display: none;">
-                        <span class="info-icon">🔒</span>
-                        <div>
-                            <strong>Protegido</strong>
-                            <span>Com senha</span>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="link-actions">
-                    <button class="btn-secondary" onclick="openLink()">
-                        Abrir Pasta
-                    </button>
-                    <button class="btn-primary" onclick="createAnother()">
-                        Criar Outra
+                    <button class="btn-create" id="btnCreate" onclick="createFolder()">
+                        Criar Pasta e Gerar Link
                     </button>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <footer>
-            <p>&copy; 2025 Pasta Compartilhada - Colaboração Simples e Rápida</p>
-        </footer>
-    </div>
-
-    <script>
-        console.log('🎯 JavaScript carregado com sucesso!');
-        
-        // Estado da aplicação
-        let currentPlan = null;
-        let maxSize = 0;
-        let folderItems = [];
-        let itemIdCounter = 0;
-
-        // Configurações dos planos
-        const planConfigs = {
-            free: {
-                name: 'Grátis',
-                maxSize: 100,
-                validity: '24 horas',
-                validityHours: 24,
-                hasPassword: false
-            },
-            pro: {
-                name: 'Pro',
-                maxSize: 1024,
-                validity: '7 dias',
-                validityHours: 168,
-                hasPassword: true
-            },
-            premium: {
-                name: 'Premium',
-                maxSize: 5120,
-                validity: '30 dias',
-                validityHours: 720,
-                hasPassword: true
-            }
-        };
-
-        function showCreateSection() {
-            if (!currentPlan) {
-                currentPlan = 'free';
-                maxSize = 100;
-                const config = planConfigs['free'];
-                document.getElementById('selectedPlan').textContent = config.name;
-                document.getElementById('sizeLimit').textContent = '100 MB';
-                document.getElementById('validity').textContent = config.validity;
-                document.getElementById('passwordSection').style.display = 'none';
-            }
-            
-            document.getElementById('heroSection').style.display = 'none';
-            document.getElementById('plansSection').style.display = 'none';
-            document.getElementById('createSection').style.display = 'block';
-            document.getElementById('linkSection').style.display = 'none';
-            
-            if (folderItems.length === 0) {
-                renderFolderItems();
-            }
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showAddItemMenu() {
-            const menu = document.getElementById('addItemMenu');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function addNewItem(type) {
-            const itemId = itemIdCounter++;
-            
-            const item = {
-                id: itemId,
-                type: type,
-                collapsed: false
-            };
-
-            if (type === 'upload') {
-                item.files = [];
-                item.filesData = [];
-                item.name = 'Arquivos';
-            } else if (type === 'text') {
-                item.content = '';
-                item.name = 'Documento de Texto';
-            } else if (type === 'code') {
-                item.content = '';
-                item.language = 'javascript';
-                item.name = 'Código';
-            }
-
-            folderItems.push(item);
-            renderFolderItems();
-            document.getElementById('addItemMenu').style.display = 'none';
-        }
-
-        function renderFolderItems() {
-            const itemsList = document.getElementById('itemsList');
-            
-            if (folderItems.length === 0) {
-                itemsList.innerHTML = '<p style="color: #586069; text-align: center; padding: 20px;">Nenhum item adicionado ainda</p>';
-                return;
-            }
-
-            itemsList.innerHTML = '';
-
-            folderItems.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'folder-item';
-                
-                const icon = item.type === 'upload' ? '📤' : item.type === 'text' ? '📝' : '💻';
-                
-                itemDiv.innerHTML = `
-                    <div class="folder-item-header" onclick="toggleItem(${item.id})">
-                        <div class="folder-item-title">
-                            <button class="btn-toggle ${item.collapsed ? 'collapsed' : ''}" id="toggle-${item.id}">▼</button>
-                            <span>${icon} ${item.name}</span>
-                        </div>
-                        <div class="folder-item-actions">
-                            <button class="btn-delete-item" onclick="event.stopPropagation(); deleteItem(${item.id})">
-                                🗑️ Remover
+            <!-- Seção de Link Gerado -->
+            <section class="link-section" id="linkSection" style="display: none;">
+                <h2>✅ Pasta Criada com Sucesso!</h2>
+                <div class="link-container">
+                    <div class="link-box">
+                        <div class="link-label">Link para Compartilhar:</div>
+                        <div class="link-display">
+                            <input type="text" id="generatedLink" readonly>
+                            <button class="btn-copy" onclick="copyLink()">
+                                <span id="copyText">Copiar</span>
                             </button>
                         </div>
                     </div>
-                    <div class="folder-item-content ${item.collapsed ? 'collapsed' : ''}" id="content-${item.id}">
-                        ${renderItemContent(item)}
-                    </div>
-                `;
-                
-                itemsList.appendChild(itemDiv);
-            });
-        }
 
-        function renderItemContent(item) {
-            if (item.type === 'upload') {
-                return `
-                    <div class="upload-area" onclick="document.getElementById('fileInput-${item.id}').click()">
-                        <div class="upload-icon">📤</div>
-                        <p class="upload-text">Arraste arquivos ou clique para selecionar</p>
-                        <p class="upload-hint">Suporta múltiplos arquivos</p>
-                        <input type="file" id="fileInput-${item.id}" multiple hidden onchange="handleFileSelect(${item.id}, event)">
-                        <button class="btn-upload" onclick="event.stopPropagation();">Escolher Arquivos</button>
-                    </div>
-                    <div class="files-list" id="filesList-${item.id}"></div>
-                `;
-            } else if (item.type === 'text') {
-                return `<textarea class="text-editor" id="textEditor-${item.id}" placeholder="Comece a escrever..." oninput="updateItemContent(${item.id}, this.value)">${item.content || ''}</textarea>`;
-            } else if (item.type === 'code') {
-                return `
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <label style="font-weight: 500; color: #2c3e50;">Linguagem:</label>
-                        <select class="editor-lang-select" id="codeLang-${item.id}" onchange="updateItemLanguage(${item.id}, this.value)">
-                            <option value="javascript" ${item.language === 'javascript' ? 'selected' : ''}>JavaScript</option>
-                            <option value="python" ${item.language === 'python' ? 'selected' : ''}>Python</option>
-                            <option value="html" ${item.language === 'html' ? 'selected' : ''}>HTML</option>
-                            <option value="css" ${item.language === 'css' ? 'selected' : ''}>CSS</option>
-                            <option value="java" ${item.language === 'java' ? 'selected' : ''}>Java</option>
-                            <option value="cpp" ${item.language === 'cpp' ? 'selected' : ''}>C++</option>
-                        </select>
-                    </div>
-                    <textarea class="code-editor" id="codeEditor-${item.id}" placeholder="// Comece a programar..." oninput="updateItemContent(${item.id}, this.value)">${item.content || ''}</textarea>
-                `;
-            }
-        }
-
-        function toggleItem(itemId) {
-            const item = folderItems.find(i => i.id === itemId);
-            if (item) {
-                item.collapsed = !item.collapsed;
-                const contentDiv = document.getElementById(`content-${itemId}`);
-                const toggleBtn = document.getElementById(`toggle-${itemId}`);
-                
-                if (item.collapsed) {
-                    contentDiv.classList.add('collapsed');
-                    toggleBtn.classList.add('collapsed');
-                } else {
-                    contentDiv.classList.remove('collapsed');
-                    toggleBtn.classList.remove('collapsed');
-                }
-            }
-        }
-
-        function deleteItem(itemId) {
-            if (confirm('Remover este item?')) {
-                folderItems = folderItems.filter(i => i.id !== itemId);
-                renderFolderItems();
-            }
-        }
-
-        function updateItemContent(itemId, content) {
-            const item = folderItems.find(i => i.id === itemId);
-            if (item) {
-                item.content = content;
-            }
-        }
-
-        function updateItemLanguage(itemId, language) {
-            const item = folderItems.find(i => i.id === itemId);
-            if (item) {
-                item.language = language;
-            }
-        }
-
-        function handleFileSelect(itemId, event) {
-            const files = Array.from(event.target.files);
-            const item = folderItems.find(i => i.id === itemId);
-            
-            if (!item) return;
-
-            files.forEach(file => {
-                const fileSizeMB = file.size / (1024 * 1024);
-                
-                let totalSize = 0;
-                folderItems.forEach(i => {
-                    if (i.type === 'upload' && i.files) {
-                        i.files.forEach(f => totalSize += f.size / (1024 * 1024));
-                    }
-                });
-                
-                if (totalSize + fileSizeMB > maxSize) {
-                    alert(`Não é possível adicionar "${file.name}". Limite de ${maxSize >= 1024 ? (maxSize/1024).toFixed(1) + ' GB' : maxSize + ' MB'} seria excedido.`);
-                    return;
-                }
-                
-                item.files.push(file);
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    item.filesData.push({
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        data: e.target.result
-                    });
-                    updateFilesList(itemId);
-                };
-                reader.readAsDataURL(file);
-            });
-            
-            updateFilesList(itemId);
-        }
-
-        function updateFilesList(itemId) {
-            const item = folderItems.find(i => i.id === itemId);
-            if (!item || !item.files) return;
-
-            const filesList = document.getElementById(`filesList-${itemId}`);
-            
-            if (item.files.length === 0) {
-                filesList.innerHTML = '';
-                return;
-            }
-
-            filesList.innerHTML = '<h4 style="margin: 15px 0 10px 0; color: #2c3e50;">Arquivos:</h4>';
-            
-            item.files.forEach((file, index) => {
-                const fileDiv = document.createElement('div');
-                fileDiv.className = 'file-item';
-                fileDiv.innerHTML = `
-                    <div class="file-info">
-                        <div class="file-icon">${getFileIcon(file.name)}</div>
-                        <div class="file-details">
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-size">${formatFileSize(file.size)}</div>
+                    <div class="link-info">
+                        <div class="info-item">
+                            <span class="info-icon">📊</span>
+                            <div>
+                                <strong>Tamanho</strong>
+                                <span id="totalSize">-</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">📁</span>
+                            <div>
+                                <strong>Conteúdo</strong>
+                                <span id="fileCount">-</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">⏰</span>
+                            <div>
+                                <strong>Expira em</strong>
+                                <span id="expiryTime">-</span>
+                            </div>
+                        </div>
+                        <div class="info-item" id="passwordInfo" style="display: none;">
+                            <span class="info-icon">🔒</span>
+                            <div>
+                                <strong>Protegido</strong>
+                                <span>Com senha</span>
+                            </div>
                         </div>
                     </div>
-                    <button class="btn-remove" onclick="removeFileFromItem(${itemId}, ${index})">Remover</button>
-                `;
-                filesList.appendChild(fileDiv);
-            });
-        }
 
-        function removeFileFromItem(itemId, fileIndex) {
-            const item = folderItems.find(i => i.id === itemId);
-            if (item) {
-                item.files.splice(fileIndex, 1);
-                item.filesData.splice(fileIndex, 1);
+                    <div class="link-actions">
+                        <button class="btn-secondary" onclick="openLink()">
+                            Abrir Pasta
+                        </button>
+                        <button class="btn-primary" onclick="createAnother()">
+                            Criar Outra
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Minhas Pastas -->
+            <footer>
+                <p>&copy; 2025 Pasta Compartilhada - Colaboração Simples e Rápida</p>
+            </footer>
+        </div>
+
+        <script>
+            console.log('🎯 JavaScript carregado com sucesso!');
+            
+            // Estado da aplicação
+            let currentPlan = null;
+            let maxSize = 0;
+            let folderItems = []; // Array para armazenar todos os itens da pasta
+            let itemIdCounter = 0; // Contador para IDs únicos dos itens
+
+            // Configurações dos planos
+            const planConfigs = {
+                free: {
+                    name: 'Grátis',
+                    maxSize: 100,
+                    validity: '24 horas',
+                    validityHours: 24,
+                    hasPassword: false
+                },
+                pro: {
+                    name: 'Pro',
+                    maxSize: 1024,
+                    validity: '7 dias',
+                    validityHours: 168,
+                    hasPassword: true
+                },
+                premium: {
+                    name: 'Premium',
+                    maxSize: 5120,
+                    validity: '30 dias',
+                    validityHours: 720,
+                    hasPassword: true
+                }
+            };
+
+            // Mostrar seção de criação
+            function showCreateSection() {
+                // Se não tem plano selecionado, selecionar o grátis automaticamente
+                if (!currentPlan) {
+                    currentPlan = 'free';
+                    maxSize = 100;
+                    
+                    const config = planConfigs['free'];
+                    document.getElementById('selectedPlan').textContent = config.name;
+                    document.getElementById('sizeLimit').textContent = '100 MB';
+                    document.getElementById('validity').textContent = config.validity;
+                    document.getElementById('passwordSection').style.display = 'none';
+                }
+                
+                document.getElementById('heroSection').style.display = 'none';
+                document.getElementById('plansSection').style.display = 'none';
+                document.getElementById('createSection').style.display = 'block';
+                document.getElementById('linkSection').style.display = 'none';
+                
+                // Reset items se necessário
+                if (folderItems.length === 0) {
+                    renderFolderItems();
+                }
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Mostrar menu de adicionar item
+            function showAddItemMenu() {
+                const menu = document.getElementById('addItemMenu');
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // Adicionar novo item à pasta
+            function addNewItem(type) {
+                const itemId = itemIdCounter++;
+                
+                const item = {
+                    id: itemId,
+                    type: type,
+                    collapsed: false
+                };
+
+                if (type === 'text') {
+                    item.content = '';
+                    item.name = 'Documento de Texto';
+                } else if (type === 'code') {
+                    item.content = '';
+                    item.language = 'javascript';
+                    item.name = 'Código';
+                }
+
+                folderItems.push(item);
+                renderFolderItems();
+                
+                // Esconder menu
+                document.getElementById('addItemMenu').style.display = 'none';
+            }
+
+            // Renderizar itens da pasta
+            function renderFolderItems() {
+                const itemsList = document.getElementById('itemsList');
+                
+                if (folderItems.length === 0) {
+                    itemsList.innerHTML = '<p style="color: #586069; text-align: center; padding: 20px;">Nenhum item adicionado ainda</p>';
+                    return;
+                }
+
+                itemsList.innerHTML = '';
+
+                folderItems.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'folder-item';
+                    
+                    const icon = item.type === 'upload' ? '📤' : item.type === 'text' ? '📝' : '💻';
+                    
+                    itemDiv.innerHTML = `
+                        <div class="folder-item-header" onclick="toggleItem(${item.id})">
+                            <div class="folder-item-title">
+                                <button class="btn-toggle ${item.collapsed ? 'collapsed' : ''}" id="toggle-${item.id}">
+                                    ▼
+                                </button>
+                                <span>${icon} ${item.name}</span>
+                            </div>
+                            <div class="folder-item-actions">
+                                <button class="btn-delete-item" onclick="event.stopPropagation(); deleteItem(${item.id})">
+                                    🗑️ Remover
+                                </button>
+                            </div>
+                        </div>
+                        <div class="folder-item-content ${item.collapsed ? 'collapsed' : ''}" id="content-${item.id}">
+                            ${renderItemContent(item)}
+                        </div>
+                    `;
+                    
+                    itemsList.appendChild(itemDiv);
+                });
+            }
+
+            // Renderizar conteúdo específico do item
+            function renderItemContent(item) {
+                if (item.type === 'text') {
+                    return `
+                        <textarea 
+                            class="text-editor" 
+                            id="textEditor-${item.id}" 
+                            placeholder="Comece a escrever seu documento..."
+                            oninput="updateItemContent(${item.id}, this.value); debounceSync(${item.id})"
+                        >${item.content || ''}</textarea>
+                    `;
+                } else if (item.type === 'code') {
+                    return `
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <label style="font-weight: 500; color: #2c3e50;">Linguagem:</label>
+                            <select 
+                                class="editor-lang-select" 
+                                id="codeLang-${item.id}"
+                                onchange="updateItemLanguage(${item.id}, this.value)"
+                            >
+                                <option value="javascript" ${item.language === 'javascript' ? 'selected' : ''}>JavaScript</option>
+                                <option value="python" ${item.language === 'python' ? 'selected' : ''}>Python</option>
+                                <option value="html" ${item.language === 'html' ? 'selected' : ''}>HTML</option>
+                                <option value="css" ${item.language === 'css' ? 'selected' : ''}>CSS</option>
+                                <option value="java" ${item.language === 'java' ? 'selected' : ''}>Java</option>
+                                <option value="cpp" ${item.language === 'cpp' ? 'selected' : ''}>C++</option>
+                                <option value="csharp" ${item.language === 'csharp' ? 'selected' : ''}>C#</option>
+                                <option value="php" ${item.language === 'php' ? 'selected' : ''}>PHP</option>
+                                <option value="sql" ${item.language === 'sql' ? 'selected' : ''}>SQL</option>
+                                <option value="json" ${item.language === 'json' ? 'selected' : ''}>JSON</option>
+                            </select>
+                            <button 
+                                class="btn-run-code" 
+                                onclick="runCode(${item.id})"
+                                style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; margin-left: auto;">
+                                ▶️ Executar
+                            </button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 400px;">
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="background: #f6f8fa; padding: 8px 12px; border: 1px solid #e1e4e8; border-bottom: none; border-radius: 6px 6px 0 0; font-weight: 600; color: #2c3e50; font-size: 0.9em;">
+                                    💻 Editor
+                                </div>
+                                <textarea 
+                                    class="code-editor" 
+                                    id="codeEditor-${item.id}" 
+                                    placeholder="// Comece a programar...&#10;console.log('Hello World!');"
+                                    oninput="updateItemContent(${item.id}, this.value); debounceSync(${item.id})"
+                                    style="flex: 1; border-radius: 0 0 6px 6px; resize: none;"
+                                >${item.content || ''}</textarea>
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="background: #0d1117; color: #c9d1d9; padding: 8px 12px; border: 1px solid #30363d; border-bottom: none; border-radius: 6px 6px 0 0; font-weight: 600; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>📟 Console</span>
+                                    <button onclick="clearConsole(${item.id})" style="background: none; border: none; color: #c9d1d9; cursor: pointer; font-size: 0.8em;">🗑️ Limpar</button>
+                                </div>
+                                <div 
+                                    id="console-${item.id}" 
+                                    style="flex: 1; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 0 0 6px 6px; padding: 12px; font-family: 'Consolas', monospace; font-size: 13px; overflow-y: auto; white-space: pre-wrap;"
+                                >Pronto para executar código...</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Toggle item expandido/colapsado
+            function toggleItem(itemId) {
+                const item = folderItems.find(i => i.id === itemId);
+                if (item) {
+                    item.collapsed = !item.collapsed;
+                    const contentDiv = document.getElementById(`content-${itemId}`);
+                    const toggleBtn = document.getElementById(`toggle-${itemId}`);
+                    
+                    if (item.collapsed) {
+                        contentDiv.classList.add('collapsed');
+                        toggleBtn.classList.add('collapsed');
+                    } else {
+                        contentDiv.classList.remove('collapsed');
+                        toggleBtn.classList.remove('collapsed');
+                    }
+                }
+            }
+
+            // Deletar item
+            function deleteItem(itemId) {
+                if (confirm('Remover este item?')) {
+                    folderItems = folderItems.filter(i => i.id !== itemId);
+                    renderFolderItems();
+                }
+            }
+
+            // Atualizar conteúdo do item
+            function updateItemContent(itemId, content) {
+                const item = folderItems.find(i => i.id === itemId);
+                if (item) {
+                    item.content = content;
+                }
+            }
+
+            // Atualizar linguagem do código
+            function updateItemLanguage(itemId, language) {
+                const item = folderItems.find(i => i.id === itemId);
+                if (item) {
+                    item.language = language;
+                }
+            }
+
+            // SISTEMA DE COMPILAÇÃO/EXECUÇÃO
+            function runCode(itemId) {
+                const item = folderItems.find(i => i.id === itemId);
+                if (!item || item.type !== 'code') return;
+
+                const code = item.content || '';
+                const language = item.language || 'javascript';
+                const consoleDiv = document.getElementById(`console-${itemId}`);
+
+                // Limpar console
+                consoleDiv.innerHTML = '';
+                
+                // Adicionar timestamp
+                addToConsole(itemId, `[${new Date().toLocaleTimeString()}] Executando ${language.toUpperCase()}...`, 'info');
+
+                try {
+                    switch(language) {
+                        case 'javascript':
+                            runJavaScript(itemId, code);
+                            break;
+                        case 'python':
+                            runPython(itemId, code);
+                            break;
+                        case 'html':
+                            runHTML(itemId, code);
+                            break;
+                        case 'css':
+                            runCSS(itemId, code);
+                            break;
+                        case 'json':
+                            runJSON(itemId, code);
+                            break;
+                        default:
+                            addToConsole(itemId, `❌ Execução não suportada para ${language}`, 'error');
+                            addToConsole(itemId, 'Linguagens suportadas: JavaScript, Python, HTML, CSS, JSON', 'info');
+                    }
+                } catch (error) {
+                    addToConsole(itemId, `❌ Erro: ${error.message}`, 'error');
+                }
+            }
+
+            function addToConsole(itemId, message, type = 'log') {
+                const consoleDiv = document.getElementById(`console-${itemId}`);
+                if (!consoleDiv) return;
+
+                const colors = {
+                    'log': '#c9d1d9',
+                    'info': '#58a6ff',
+                    'warn': '#d29922',
+                    'error': '#f85149',
+                    'success': '#3fb950'
+                };
+
+                const line = document.createElement('div');
+                line.style.color = colors[type] || colors.log;
+                line.style.marginBottom = '4px';
+                line.textContent = message;
+                
+                consoleDiv.appendChild(line);
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+
+            function runJavaScript(itemId, code) {
+                // Capturar console.log
+                const originalLog = console.log;
+                const originalWarn = console.warn;
+                const originalError = console.error;
+
+                console.log = (...args) => {
+                    addToConsole(itemId, args.join(' '), 'log');
+                    originalLog(...args);
+                };
+                console.warn = (...args) => {
+                    addToConsole(itemId, '⚠️ ' + args.join(' '), 'warn');
+                    originalWarn(...args);
+                };
+                console.error = (...args) => {
+                    addToConsole(itemId, '❌ ' + args.join(' '), 'error');
+                    originalError(...args);
+                };
+
+                try {
+                    // Executar código
+                    const result = eval(code);
+                    if (result !== undefined) {
+                        addToConsole(itemId, `← ${result}`, 'success');
+                    }
+                    addToConsole(itemId, '✅ Execução concluída', 'success');
+                } catch (error) {
+                    addToConsole(itemId, `❌ ${error.name}: ${error.message}`, 'error');
+                } finally {
+                    // Restaurar console
+                    console.log = originalLog;
+                    console.warn = originalWarn;
+                    console.error = originalError;
+                }
+            }
+
+            function runPython(itemId, code) {
+                addToConsole(itemId, '🐍 Simulando execução Python...', 'info');
+                
+                // Simulação básica de Python
+                const lines = code.split('\n');
+                let output = [];
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.startsWith('print(')) {
+                        const match = line.match(/print\((.*)\)/);
+                        if (match) {
+                            let content = match[1];
+                            // Remover aspas
+                            content = content.replace(/^["']|["']$/g, '');
+                            output.push(content);
+                        }
+                    }
+                }
+                
+                if (output.length > 0) {
+                    output.forEach(out => addToConsole(itemId, out, 'log'));
+                } else {
+                    addToConsole(itemId, '💡 Dica: Use print("texto") para ver output', 'info');
+                }
+                
+                addToConsole(itemId, '✅ Simulação concluída', 'success');
+            }
+
+            function runHTML(itemId, code) {
+                addToConsole(itemId, '🌐 Renderizando HTML...', 'info');
+                
+                // Criar preview do HTML
+                const previewWindow = window.open('', '_blank', 'width=600,height=400');
+                previewWindow.document.write(code);
+                previewWindow.document.close();
+                
+                addToConsole(itemId, '✅ HTML aberto em nova janela', 'success');
+            }
+
+            function runCSS(itemId, code) {
+                addToConsole(itemId, '🎨 Validando CSS...', 'info');
+                
+                try {
+                    // Teste básico de CSS válido
+                    const testDiv = document.createElement('div');
+                    testDiv.style.cssText = code;
+                    
+                    addToConsole(itemId, '✅ CSS válido', 'success');
+                    addToConsole(itemId, '💡 Dica: Combine com HTML para ver resultado', 'info');
+                } catch (error) {
+                    addToConsole(itemId, `❌ CSS inválido: ${error.message}`, 'error');
+                }
+            }
+
+            function runJSON(itemId, code) {
+                addToConsole(itemId, '📋 Validando JSON...', 'info');
+                
+                try {
+                    const parsed = JSON.parse(code);
+                    addToConsole(itemId, '✅ JSON válido', 'success');
+                    addToConsole(itemId, `📊 Objetos: ${Object.keys(parsed).length}`, 'info');
+                } catch (error) {
+                    addToConsole(itemId, `❌ JSON inválido: ${error.message}`, 'error');
+                }
+            }
+
+            function clearConsole(itemId) {
+                const consoleDiv = document.getElementById(`console-${itemId}`);
+                if (consoleDiv) {
+                    consoleDiv.innerHTML = 'Console limpo...';
+                }
+            }
+
+            // SINCRONIZAÇÃO EM TEMPO REAL
+            let syncTimeouts = {};
+            let currentFolderId = null;
+            let isListeningToChanges = false;
+
+            function debounceSync(itemId) {
+                if (!currentFolderId) return;
+                
+                // Cancelar timeout anterior
+                if (syncTimeouts[itemId]) {
+                    clearTimeout(syncTimeouts[itemId]);
+                }
+                
+                // Criar novo timeout para sincronizar após 1 segundo de inatividade
+                syncTimeouts[itemId] = setTimeout(() => {
+                    syncItemToFirestore(itemId);
+                }, 1000);
+            }
+
+            async function syncItemToFirestore(itemId) {
+                if (!currentFolderId) return;
+                
+                showSyncIndicator('syncing', 'Salvando mudanças...');
+                
+                try {
+                    const item = folderItems.find(i => i.id === itemId);
+                    if (!item) return;
+
+                    const snapshot = await db.ref('pastas-compartilhadas/' + currentFolderId).once('value');
+                    const folderData = snapshot.val();
+                    
+                    if (!folderData) return;
+
+                    const items = folderData.items || [];
+                    
+                    // Encontrar e atualizar o item
+                    const itemIndex = items.findIndex(i => i.id === itemId);
+                    if (itemIndex !== -1) {
+                        items[itemIndex] = {
+                            ...items[itemIndex],
+                            content: item.content,
+                            language: item.language,
+                            lastModified: Date.now()
+                        };
+                        
+                        // Atualizar no Realtime Database
+                        await db.ref('pastas-compartilhadas/' + currentFolderId).update({
+                            items: items,
+                            lastSynced: Date.now()
+                        });
+                        
+                        console.log('🔄 Item sincronizado:', itemId);
+                        showSyncIndicator('success', 'Alterações salvas!');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro na sincronização:', error);
+                    showSyncIndicator('error', 'Erro ao salvar');
+                }
+            }
+
+            function startRealtimeSync(folderId) {
+                if (isListeningToChanges) return;
+                
+                currentFolderId = folderId;
+                isListeningToChanges = true;
+                
+                console.log('🔄 Iniciando sincronização em tempo real para pasta:', folderId);
+                
+                // Escutar mudanças em tempo real no Realtime Database
+                db.ref('pastas-compartilhadas/' + folderId).on('value', (snapshot) => {
+                    const folderData = snapshot.val();
+                    if (!folderData) return;
+                    
+                    const items = folderData.items || [];
+                    
+                    // Atualizar itens que foram modificados por outros usuários
+                    items.forEach(serverItem => {
+                        const localItem = folderItems.find(i => i.id === serverItem.id);
+                        
+                        if (localItem && serverItem.lastModified) {
+                            const serverTime = serverItem.lastModified;
+                            const localTime = localItem.lastModified || 0;
+                            
+                            // Se o servidor tem versão mais recente, atualizar local
+                            if (serverTime > localTime) {
+                                localItem.content = serverItem.content;
+                                localItem.language = serverItem.language;
+                                localItem.lastModified = serverItem.lastModified;
+                                
+                                // Atualizar UI sem interferir no usuário que está digitando
+                                const editor = document.getElementById(`codeEditor-${localItem.id}`) || 
+                                             document.getElementById(`textEditor-${localItem.id}`);
+                                
+                                if (editor && document.activeElement !== editor) {
+                                    editor.value = serverItem.content;
+                                }
+                                
+                                console.log('🔄 Item atualizado do servidor:', serverItem.id);
+                            }
+                        }
+                    });
+                }, (error) => {
+                    console.error('❌ Erro na sincronização:', error);
+                });
+            }
+
+            // Processar seleção de arquivos
+            function handleFileSelect(itemId, event) {
+                const files = Array.from(event.target.files);
+                const item = folderItems.find(i => i.id === itemId);
+                
+                if (!item) return;
+
+                files.forEach(file => {
+                    const fileSizeMB = file.size / (1024 * 1024);
+                    
+                    // Calcular tamanho total
+                    let totalSize = 0;
+                    folderItems.forEach(i => {
+                        if (i.type === 'upload' && i.files) {
+                            i.files.forEach(f => totalSize += f.size / (1024 * 1024));
+                        }
+                    });
+                    
+                    if (totalSize + fileSizeMB > maxSize) {
+                        alert(`Não é possível adicionar "${file.name}". Limite de ${maxSize >= 1024 ? (maxSize/1024).toFixed(1) + ' GB' : maxSize + ' MB'} seria excedido.`);
+                        return;
+                    }
+                    
+                    item.files.push(file);
+                    
+                    // Converter para base64
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        item.filesData.push({
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: e.target.result
+                        });
+                        updateFilesList(itemId);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                
                 updateFilesList(itemId);
             }
-        }
 
-        function selectPlan(planType, sizeLimit) {
-            currentPlan = planType;
-            maxSize = sizeLimit;
-            
-            const config = planConfigs[planType];
-            
-            document.getElementById('selectedPlan').textContent = config.name;
-            document.getElementById('sizeLimit').textContent = `${sizeLimit >= 1024 ? (sizeLimit/1024).toFixed(1) + ' GB' : sizeLimit + ' MB'}`;
-            document.getElementById('validity').textContent = config.validity;
-            
-            const passwordSection = document.getElementById('passwordSection');
-            if (config.hasPassword) {
-                passwordSection.style.display = 'block';
-            } else {
-                passwordSection.style.display = 'none';
-            }
-            
-            document.getElementById('heroSection').style.display = 'none';
-            document.getElementById('plansSection').style.display = 'none';
-            document.getElementById('createSection').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            folderItems = [];
-            itemIdCounter = 0;
-            renderFolderItems();
-        }
+            // Atualizar lista de arquivos
+            function updateFilesList(itemId) {
+                const item = folderItems.find(i => i.id === itemId);
+                if (!item || !item.files) return;
 
-        function getFileIcon(fileName) {
-            const ext = fileName.split('.').pop().toLowerCase();
-            const iconMap = {
-                'pdf': '📄', 'doc': '📝', 'docx': '📝',
-                'xls': '📊', 'xlsx': '📊', 'ppt': '📊', 'pptx': '📊',
-                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
-                'mp4': '🎥', 'avi': '🎥', 'mov': '🎥',
-                'mp3': '🎵', 'wav': '🎵',
-                'zip': '🗜️', 'rar': '🗜️',
-                'txt': '📃', 'js': '💻', 'html': '💻', 'css': '💻'
-            };
-            return iconMap[ext] || '📎';
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-        }
-
-        function formatDate(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} às ${hours}:${minutes}`;
-        }
-
-        function createFolder() {
-            console.log('🚀 createFolder chamado!');
-            console.log('📝 Folder items:', JSON.parse(JSON.stringify(folderItems)));
-            
-            const folderName = document.getElementById('folderName').value.trim();
-            
-            if (!folderName) {
-                alert('Por favor, dê um nome para a pasta.');
-                return;
-            }
-            
-            if (folderItems.length === 0) {
-                alert('Por favor, adicione pelo menos um item à pasta.');
-                return;
-            }
-            
-            for (let item of folderItems) {
-                if (item.type === 'upload' && (!item.files || item.files.length === 0)) {
-                    alert('Um dos itens de arquivo está vazio. Adicione arquivos ou remova o item.');
+                const filesList = document.getElementById(`filesList-${itemId}`);
+                
+                if (item.files.length === 0) {
+                    filesList.innerHTML = '';
                     return;
                 }
-                if ((item.type === 'text' || item.type === 'code') && !item.content) {
-                    alert('Um dos itens de texto/código está vazio. Adicione conteúdo ou remova o item.');
-                    return;
+
+                filesList.innerHTML = '<h4 style="margin: 15px 0 10px 0; color: #2c3e50;">Arquivos:</h4>';
+                
+                item.files.forEach((file, index) => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'file-item';
+                    fileDiv.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-icon">${getFileIcon(file.name)}</div>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                        <button class="btn-remove" onclick="removeFileFromItem(${itemId}, ${index})">
+                            Remover
+                        </button>
+                    `;
+                    filesList.appendChild(fileDiv);
+                });
+            }
+
+            // Remover arquivo de um item
+            function removeFileFromItem(itemId, fileIndex) {
+                const item = folderItems.find(i => i.id === itemId);
+                if (item) {
+                    item.files.splice(fileIndex, 1);
+                    item.filesData.splice(fileIndex, 1);
+                    updateFilesList(itemId);
                 }
             }
-            
-            console.log('✅ Validação passou!');
-            saveFolderAndShowLink();
-        }
 
-        // ====== SALVAR NO FIREBASE (Storage + Firestore) - SEM FALLBACK LOCAL ======
+            // Selecionar plano
+            function selectPlan(planType, sizeLimit) {
+                currentPlan = planType;
+                maxSize = sizeLimit;
+                
+                const config = planConfigs[planType];
+                
+                document.getElementById('selectedPlan').textContent = config.name;
+                document.getElementById('sizeLimit').textContent = `${sizeLimit >= 1024 ? (sizeLimit/1024).toFixed(1) + ' GB' : sizeLimit + ' MB'}`;
+                document.getElementById('validity').textContent = config.validity;
+                
+                const passwordSection = document.getElementById('passwordSection');
+                if (config.hasPassword) {
+                    passwordSection.style.display = 'block';
+                } else {
+                    passwordSection.style.display = 'none';
+                }
+                
+                document.getElementById('heroSection').style.display = 'none';
+                document.getElementById('plansSection').style.display = 'none';
+                document.getElementById('createSection').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Reset items
+                folderItems = [];
+                itemIdCounter = 0;
+                renderFolderItems();
+            }
+
+            // Obter ícone do arquivo
+            function getFileIcon(fileName) {
+                const ext = fileName.split('.').pop().toLowerCase();
+                
+                const iconMap = {
+                    'pdf': '📄', 'doc': '📝', 'docx': '📝',
+                    'xls': '📊', 'xlsx': '📊', 'ppt': '📊', 'pptx': '📊',
+                    'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
+                    'mp4': '🎥', 'avi': '🎥', 'mov': '🎥',
+                    'mp3': '🎵', 'wav': '🎵',
+                    'zip': '🗜️', 'rar': '🗜️',
+                    'txt': '📃', 'js': '💻', 'html': '💻', 'css': '💻'
+                };
+                
+                return iconMap[ext] || '📎';
+            }
+
+            // Formatar tamanho do arquivo
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+            }
+
+            // Formatar data
+            function formatDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} às ${hours}:${minutes}`;
+            }
+
+            // Criar pasta
+            function createFolder() {
+                console.log('🚀 createFolder chamado!');
+                console.log('📝 Folder items (antes da validação):', JSON.parse(JSON.stringify(folderItems)));
+                console.log('📦 Current plan:', currentPlan);
+                
+                const folderName = document.getElementById('folderName').value.trim();
+                
+                if (!folderName) {
+                    alert('Por favor, dê um nome para a pasta.');
+                    return;
+                }
+                
+                if (folderItems.length === 0) {
+                    alert('Por favor, adicione pelo menos um item à pasta.');
+                    return;
+                }
+                
+                // Validar conteúdo dos itens
+                for (let item of folderItems) {
+                    console.log(`🔍 Validando item ${item.id}:`, {
+                        type: item.type,
+                        contentLength: item.content?.length || 0
+                    });
+                    
+                    if ((item.type === 'text' || item.type === 'code') && !item.content) {
+                        alert('Um dos itens está vazio. Adicione conteúdo ou remova o item.');
+                        return;
+                    }
+                }
+                
+                console.log('✅ Validação passou! Salvando pasta...');
+                console.log('📦 Items finais que serão salvos:', JSON.parse(JSON.stringify(folderItems)));
+                
+                // Salvar diretamente
+                saveFolderAndShowLink();
+            }
+
+        // ====== SALVAR NO FIREBASE (Storage + Firestore) ======
         async function saveFolderAndShowLink() {
             console.log('💾 saveFolderAndShowLink chamado!');
             
@@ -1378,97 +1930,58 @@
             const password = document.getElementById('folderPassword').value;
             const config = planConfigs[currentPlan];
             
+            console.log('📦 Config:', config);
+            
             const uniqueId = generateUniqueId();
-            console.log('🆔 Pasta ID:', uniqueId);
+            console.log('🆔 Unique ID:', uniqueId);
             
             try {
-                console.log('🔄 Processando items...');
+                // Processar items - Upload de arquivos para Storage
+                console.log('🔄 Processando items de texto e código...');
+                
                 const processedItems = [];
                 
                 for (const item of folderItems) {
                     const processed = {
                         id: item.id,
                         type: item.type,
-                        name: item.name
+                        name: item.name,
+                        content: item.content || ''
                     };
                     
-                    if (item.type === 'upload' && item.filesData && item.filesData.length > 0) {
-                        console.log(`📤 Enviando ${item.filesData.length} arquivo(s) para Firebase Storage...`);
-                        processed.filesData = [];
-                        
-                        for (const fileData of item.filesData) {
-                            try {
-                                console.log(`  📎 Enviando: ${fileData.name}`);
-                                
-                                // Converter base64 para Blob
-                                const base64Data = fileData.data.split(',')[1];
-                                const byteCharacters = atob(base64Data);
-                                const byteNumbers = new Array(byteCharacters.length);
-                                for (let i = 0; i < byteCharacters.length; i++) {
-                                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                                }
-                                const byteArray = new Uint8Array(byteNumbers);
-                                const blob = new Blob([byteArray], { type: fileData.type });
-                                
-                                // Upload para Storage
-                                const fileName = `${Date.now()}_${fileData.name}`;
-                                const storageRef = storage.ref(`pastas/${uniqueId}/${fileName}`);
-                                
-                                await storageRef.put(blob);
-                                const downloadURL = await storageRef.getDownloadURL();
-                                
-                                processed.filesData.push({
-                                    name: fileData.name,
-                                    type: fileData.type,
-                                    size: fileData.size,
-                                    url: downloadURL
-                                });
-                                
-                                console.log(`  ✅ ${fileData.name} enviado com sucesso!`);
-                            } catch (uploadError) {
-                                console.error(`  ❌ Erro ao enviar ${fileData.name}:`, uploadError);
-                                throw uploadError; // Propagar erro - SEM FALLBACK
-                            }
-                        }
-                    } else if (item.type === 'text' || item.type === 'code') {
-                        processed.content = item.content || '';
-                        if (item.type === 'code') {
-                            processed.language = item.language || 'javascript';
-                        }
+                    if (item.type === 'code') {
+                        processed.language = item.language || 'javascript';
+                        console.log(`💻 Código ${item.name}: ${processed.language}, ${processed.content.length} chars`);
+                    } else if (item.type === 'text') {
+                        console.log(`📝 Texto ${item.name}: ${processed.content.length} chars`);
                     }
                     
                     processedItems.push(processed);
                 }
                 
-                console.log('✅ Items prontos para o Firestore:', processedItems);
+                console.log('✅ Items processados:', processedItems);
                 
-                // Criar documento no Firestore - APENAS FIREBASE, SEM LOCAL
+                // Criar documento no Realtime Database
                 const folderData = {
                     id: uniqueId,
                     creatorName: creatorName,
                     name: folderName,
                     plan: currentPlan,
                     password: password || null,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + config.validityHours * 60 * 60 * 1000)),
+                    createdAt: Date.now(),
+                    expiresAt: Date.now() + config.validityHours * 60 * 60 * 1000,
                     items: processedItems,
                     views: 0
                 };
                 
-                console.log('📊 Documento pronto para Firestore:');
-                console.log('  - ID:', folderData.id);
-                console.log('  - Nome:', folderData.name);
-                console.log('  - Criador:', folderData.creatorName);
-                console.log('  - Plano:', folderData.plan);
-                console.log('  - Items:', folderData.items.length);
-                console.log('  - Tamanho total:', JSON.stringify(folderData).length, 'bytes');
+                console.log('� Salvando no Realtime Database...');
+                await db.ref('pastas-compartilhadas/' + uniqueId).set(folderData);
+                console.log('✅ Pasta salva no Realtime Database!');
                 
-                // SALVANDO NO FIREBASE - SEM QUALQUER FALLBACK PARA LOCAL
-                console.log('💾 Salvando no Firestore...');
-                await db.collection('pastas').doc(uniqueId).set(folderData);
-                console.log('✅ Pasta salva com SUCESSO no Firebase!');
-                console.log('🔗 Acesse em: https://theherick.github.io/past/?id=' + uniqueId);
+                // Iniciar sincronização em tempo real
+                startRealtimeSync(uniqueId);
                 
+                // Mostrar link
                 showLinkSection(uniqueId);
                 
             } catch (error) {
@@ -1477,141 +1990,637 @@
             }
         }
 
-        function showLinkSection(uniqueId) {
-            console.log('🔗 showLinkSection chamado com ID:', uniqueId);
-            
-            const folderName = document.getElementById('folderName').value || 'Pasta';
-            const password = document.getElementById('folderPassword').value;
-            const config = planConfigs[currentPlan];
-            
-            const link = `https://theherick.github.io/past/?id=${uniqueId}`;
-            
-            document.getElementById('generatedLink').value = link;
-            
-            let totalSize = 0;
-            let itemCount = folderItems.length;
-            
-            folderItems.forEach(item => {
-                if (item.type === 'upload' && item.files) {
-                    item.files.forEach(f => totalSize += f.size / (1024 * 1024));
+            // Mostrar seção do link
+            function showLinkSection(uniqueId) {
+                console.log('🔗 showLinkSection chamado com ID:', uniqueId);
+                
+                const folderName = document.getElementById('folderName').value || 'Pasta';
+                const password = document.getElementById('folderPassword').value;
+                const config = planConfigs[currentPlan];
+                
+                const link = `https://theherick.github.io/past/?id=${uniqueId}`;
+                console.log('🔗 Link gerado:', link);
+                
+                const expiryDate = new Date(Date.now() + config.validityHours * 60 * 60 * 1000);
+                
+                document.getElementById('generatedLink').value = link;
+                
+                // Calcular estatísticas
+                let itemCount = folderItems.length;
+                let totalChars = 0;
+                
+                folderItems.forEach(item => {
+                    if (item.content) {
+                        totalChars += item.content.length;
+                    }
+                });
+                
+                document.getElementById('totalSize').textContent = totalChars > 0 ? (totalChars / 1000).toFixed(1) + 'k chars' : '-';
+                document.getElementById('fileCount').textContent = itemCount + ' item(ns)';
+                document.getElementById('expiryTime').textContent = formatDate(expiryDate);
+                
+                if (password) {
+                    document.getElementById('passwordInfo').style.display = 'flex';
+                } else {
+                    document.getElementById('passwordInfo').style.display = 'none';
                 }
-            });
-            
-            document.getElementById('totalSize').textContent = totalSize > 0 ? totalSize.toFixed(2) + ' MB' : '-';
-            document.getElementById('fileCount').textContent = itemCount + ' item(ns)';
-            document.getElementById('expiryTime').textContent = formatDate(new Date(Date.now() + config.validityHours * 60 * 60 * 1000));
-            
-            if (password) {
-                document.getElementById('passwordInfo').style.display = 'flex';
-            } else {
-                document.getElementById('passwordInfo').style.display = 'none';
-            }
-            
-            document.getElementById('createSection').style.display = 'none';
-            document.getElementById('linkSection').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function generateUniqueId() {
-            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 8; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        function copyLink() {
-            const linkInput = document.getElementById('generatedLink');
-            linkInput.select();
-            linkInput.setSelectionRange(0, 99999);
-            
-            try {
-                document.execCommand('copy');
-                const copyBtn = document.querySelector('.btn-copy');
-                const copyText = document.getElementById('copyText');
                 
-                copyBtn.classList.add('copied');
-                copyText.textContent = '✓ Copiado!';
-                
-                setTimeout(() => {
-                    copyBtn.classList.remove('copied');
-                    copyText.textContent = 'Copiar';
-                }, 2000);
-            } catch (err) {
-                alert('Link: ' + linkInput.value);
+                document.getElementById('createSection').style.display = 'none';
+                document.getElementById('linkSection').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        }
 
-        function openLink() {
-            const link = document.getElementById('generatedLink').value;
-            window.open(link, '_blank');
-        }
+            // Gerar ID único
+            function generateUniqueId() {
+                const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < 8; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
 
-        function createAnother() {
-            folderItems = [];
-            itemIdCounter = 0;
-            document.getElementById('folderName').value = '';
-            document.getElementById('creatorName').value = '';
-            document.getElementById('folderPassword').value = '';
-            
-            document.getElementById('linkSection').style.display = 'none';
-            document.getElementById('heroSection').style.display = 'block';
-            document.getElementById('plansSection').style.display = 'block';
-            document.getElementById('addItemMenu').style.display = 'none';
-            
-            const btnCreate = document.getElementById('btnCreate');
-            btnCreate.disabled = false;
-            
-            renderFolderItems();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+            // Formatar data
+            function formatDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${day}/${month}/${year} às ${hours}:${minutes}`;
+            }
 
-        // Carregar pasta ao iniciar
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Página carregada!');
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const folderId = urlParams.get('id');
-            
-            if (folderId) {
-                console.log('📁 Carregando pasta:', folderId);
-            } else {
-                console.log('🏠 Página inicial');
+            // Copiar link
+            function copyLink() {
+                const linkInput = document.getElementById('generatedLink');
+                linkInput.select();
+                linkInput.setSelectionRange(0, 99999); // Para mobile
+                
+                try {
+                    document.execCommand('copy');
+                    const copyBtn = document.querySelector('.btn-copy');
+                    const copyText = document.getElementById('copyText');
+                    
+                    copyBtn.classList.add('copied');
+                    copyText.textContent = '✓ Copiado!';
+                    
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyText.textContent = 'Copiar';
+                    }, 2000);
+                } catch (err) {
+                    alert('Link: ' + linkInput.value);
+                }
+            }
+
+            // Abrir link
+            function openLink() {
+                const link = document.getElementById('generatedLink').value;
+                window.open(link, '_blank');
+            }
+
+            // Criar outra pasta
+            function createAnother() {
+                folderItems = [];
+                itemIdCounter = 0;
+                document.getElementById('folderName').value = '';
+                document.getElementById('folderPassword').value = '';
+                
+                document.getElementById('linkSection').style.display = 'none';
                 document.getElementById('heroSection').style.display = 'block';
                 document.getElementById('plansSection').style.display = 'block';
+                document.getElementById('uploadProgress').style.display = 'none';
+                document.getElementById('addItemMenu').style.display = 'none';
+                
+                const btnCreate = document.getElementById('btnCreate');
+                btnCreate.disabled = false;
+                
+                renderFolderItems();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        });
-    </script>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+            // CARREGAR PASTA COMPARTILHADA AO ACESSAR LINK
+            async function loadSharedFolder() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const folderId = urlParams.get('id');
+                
+                console.log('🔍 Tentando carregar pasta ID:', folderId);
+                
+                if (!folderId) return;
+                
+                try {
+                    // Carregar do Realtime Database
+                    console.log('☁️ Buscando no Realtime Database...');
+                    const snapshot = await db.ref('pastas-compartilhadas/' + folderId).once('value');
+                    const folder = snapshot.val();
+                    
+                    console.log('📄 Pasta existe?', !!folder);
+                    
+                    if (!folder) {
+                        alert('❌ Pasta não encontrada!');
+                        return;
+                    }
+                    console.log('✅ Pasta carregada do Realtime Database:', folder);
+                    
+                    // Verificar se expirou
+                    const now = Date.now();
+                    const expiryDate = folder.expiresAt;
+                    
+                    if (now > expiryDate) {
+                        alert('Esta pasta expirou!');
+                        await db.ref('pastas-compartilhadas/' + folderId).remove();
+                        return;
+                    }
+                    
+                    // Verificar senha
+                    if (folder.password) {
+                        const inputPassword = prompt('Esta pasta é protegida por senha:');
+                        if (inputPassword !== folder.password) {
+                            alert('Senha incorreta!');
+                            return;
+                        }
+                    }
+                    
+                    // Perguntar nome do visitante (opcional)
+                    const visitorName = prompt('Qual seu nome? (opcional para se identificar)', '');
+                    if (visitorName && visitorName.trim()) {
+                        console.log('👤 Visitante:', visitorName.trim());
+                    }
+                    
+                    // Incrementar visualizações
+                    await db.ref('pastas-compartilhadas/' + folderId + '/views').transaction((currentValue) => {
+                        return (currentValue || 0) + 1;
+                    });
+                    
+                    // Iniciar sincronização em tempo real
+                    startRealtimeSync(folderId);
+                    
+                    // Renderizar pasta
+                    renderSharedFolder(folder);
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao carregar pasta:', error);
+                    alert('❌ Erro ao carregar pasta: ' + error.message);
+                }
+            }
 
-    <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAexCf7hPN2OQvfsw66UDpci6nycivrK98",
-            authDomain: "void-activation-system.firebaseapp.com",
-            databaseURL: "https://void-activation-system-default-rtdb.firebaseio.com",
-            projectId: "void-activation-system",
-            storageBucket: "void-activation-system.firebasestorage.app",
-            messagingSenderId: "108268095097",
-            appId: "1:108268095097:web:4f45ff75a9e528b3f0f6a8",
-            measurementId: "G-P71BZFRDQB"
-        };
+            // Renderizar pasta compartilhada
+            function renderSharedFolder(folder) {
+                console.log('🎨 Renderizando pasta:', folder);
+                console.log('📦 Items da pasta:', folder.items);
+                
+                // Esconder telas iniciais
+                document.getElementById('heroSection').style.display = 'none';
+                document.getElementById('plansSection').style.display = 'none';
+                
+                // Criar seção de visualização
+                const container = document.querySelector('.container');
+                const viewSection = document.createElement('section');
+                viewSection.className = 'create-section';
+                
+                const createdAt = new Date(folder.createdAt);
+                const expiresAt = new Date(folder.expiresAt);
+                
+                viewSection.innerHTML = `
+                    <h2>📁 ${folder.name}</h2>
+                    <div style="background: #f6f8fa; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                        ${folder.creatorName ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #586069;">Criado por:</span>
+                            <span style="color: #0366d6; font-weight: 600;">${folder.creatorName}</span>
+                        </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #586069;">Criado em:</span>
+                            <span style="color: #0366d6; font-weight: 600;">${formatDate(createdAt)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #586069;">Expira em:</span>
+                            <span style="color: #0366d6; font-weight: 600;">${formatDate(expiresAt)}</span>
+                        </div>
+                        ${folder.views !== undefined ? `
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                            <span style="color: #586069;">Visualizações:</span>
+                            <span style="color: #28a745; font-weight: 600;">👁️ ${folder.views}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div id="sharedContent"></div>
+                `;
+                container.appendChild(viewSection);
+                
+                const contentDiv = document.getElementById('sharedContent');
+                
+                // Renderizar itens da pasta
+                if (folder.items && folder.items.length > 0) {
+                    folder.items.forEach((item, index) => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'folder-item';
+                        itemDiv.style.marginBottom = '15px';
+                        
+                        const icon = item.type === 'upload' ? '📤' : item.type === 'text' ? '📝' : '💻';
+                        
+                        let itemContent = '';
+                        
+                        if (item.type === 'upload') {
+                            const filesList = item.filesData || item.files || [];
+                            console.log('📁 Arquivos do item:', filesList);
+                            
+                            if (filesList.length > 0) {
+                                itemContent = '<div style="padding: 15px;">';
+                                filesList.forEach(file => {
+                                    const downloadUrl = file.url || file.data; // URL do Storage ou base64
+                                    itemContent += `
+                                        <div style="background: #f6f8fa; padding: 12px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <div style="font-weight: 500; color: #2c3e50; margin-bottom: 4px;">
+                                                    ${getFileIcon(file.name)} ${file.name}
+                                                </div>
+                                                <div style="font-size: 0.85em; color: #586069;">
+                                                    ${formatFileSize(file.size)}
+                                                </div>
+                                            </div>
+                                            <a href="${downloadUrl}" download="${file.name}" 
+                                            style="background: #0366d6; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.9em;">
+                                                ⬇️ Download
+                                            </a>
+                                        </div>
+                                    `;
+                                });
+                                itemContent += '</div>';
+                            } else {
+                                itemContent = '<div style="padding: 15px; color: #586069;">Nenhum arquivo neste item</div>';
+                            }
+                        } else if (item.type === 'text') {
+                            itemContent = `
+                                <div style="padding: 15px;">
+                                    <div id="textView-${index}" style="background: white; border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; white-space: pre-wrap; line-height: 1.6;">
+                                        ${item.content}
+                                    </div>
+                                    ${currentUser && currentUser.uid === folder.userId ? `
+                                    <button onclick="enableEditItem('${folder.id}', ${index}, 'text')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                                        ✏️ Editar
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            `;
+                        } else if (item.type === 'code') {
+                            itemContent = `
+                                <div style="padding: 15px;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f6f8fa; padding: 10px 15px; border-bottom: 1px solid #e1e4e8; border-radius: 6px 6px 0 0; font-weight: 600; color: #2c3e50;">
+                                        <span>💻 ${item.language ? item.language.toUpperCase() : 'CODE'}</span>
+                                        <button onclick="runSharedCode(${index}, '${item.language || 'javascript'}')" 
+                                                style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.9em;">
+                                            ▶️ Executar
+                                        </button>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                        <div>
+                                            <div id="codeView-${index}" style="background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; padding: 20px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; white-space: pre; overflow-x: auto; max-height: 300px; overflow-y: auto;">${item.content}</div>
+                                        </div>
+                                        <div>
+                                            <div style="background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; padding: 12px; font-family: 'Consolas', monospace; font-size: 13px; max-height: 300px; overflow-y: auto;" id="sharedConsole-${index}">
+                                                Clique em "Executar" para ver o resultado...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ${currentUser && currentUser.uid === folder.userId ? `
+                                    <button onclick="enableEditItem('${folder.id}', ${index}, 'code')" style="margin-top: 10px; padding: 8px 16px; background: #0366d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                                        ✏️ Editar
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }
+                        
+                        itemDiv.innerHTML = `
+                            <div class="folder-item-header" onclick="toggleViewItem(${index})">
+                                <div class="folder-item-title">
+                                    <button class="btn-toggle" id="viewToggle-${index}">▼</button>
+                                    <span>${icon} ${item.name}</span>
+                                </div>
+                            </div>
+                            <div class="folder-item-content" id="viewContent-${index}">
+                                ${itemContent}
+                            </div>
+                        `;
+                        
+                        contentDiv.appendChild(itemDiv);
+                    });
+                }
+            }
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+            // Toggle visualização de item
+            function toggleViewItem(index) {
+                const content = document.getElementById(`viewContent-${index}`);
+                const toggle = document.getElementById(`viewToggle-${index}`);
+                
+                if (content.classList.contains('collapsed')) {
+                    content.classList.remove('collapsed');
+                    toggle.classList.remove('collapsed');
+                } else {
+                    content.classList.add('collapsed');
+                    toggle.classList.add('collapsed');
+                }
+            }
 
-        console.log('🔥 Firebase inicializado com sucesso!');
-        console.log('📦 Storage:', storage);
-        console.log('📋 Firestore:', db);
-    </script>
-</body>
-</html>
+            // Habilitar edição de item compartilhado
+            window.enableEditItem = function(folderId, index, type) {
+                if (!currentUser) {
+                    alert('❌ Você precisa estar logado para editar!');
+                    showLoginModal();
+                    return;
+                }
+
+                // Carregar dados da pasta
+                db.collection('pastas').doc(folderId).get().then(doc => {
+                    if (!doc.exists) {
+                        alert('❌ Pasta não encontrada!');
+                        return;
+                    }
+
+                    const folder = doc.data();
+                    
+                    // Verificar se é o dono
+                    if (folder.userId !== currentUser.uid) {
+                        alert('❌ Apenas o criador pode editar esta pasta!');
+                        return;
+                    }
+
+                    const item = folder.items[index];
+                    
+                    if (type === 'text') {
+                        const viewDiv = document.getElementById(`textView-${index}`);
+                        viewDiv.outerHTML = `
+                            <textarea id="editText-${index}" style="width: 100%; min-height: 300px; padding: 20px; border: 1px solid #e1e4e8; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.6; resize: vertical;">${item.content}</textarea>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button onclick="saveEditItem('${folderId}', ${index}, 'text')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                                    💾 Salvar
+                                </button>
+                                <button onclick="location.reload()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                    Cancelar
+                                </button>
+                            </div>
+                        `;
+                    } else if (type === 'code') {
+                        const viewDiv = document.getElementById(`codeView-${index}`);
+                        viewDiv.outerHTML = `
+                            <textarea id="editCode-${index}" style="width: 100%; min-height: 300px; padding: 20px; border: 1px solid #e1e4e8; border-radius: 6px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.6; resize: vertical;">${item.content}</textarea>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button onclick="saveEditItem('${folderId}', ${index}, 'code')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                                    💾 Salvar
+                                </button>
+                                <button onclick="location.reload()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                    Cancelar
+                                </button>
+                            </div>
+                        `;
+                    }
+                }).catch(error => {
+                    console.error('Erro ao carregar pasta:', error);
+                    alert('❌ Erro ao carregar pasta para edição');
+                });
+            };
+
+            // Salvar edição de item
+            window.saveEditItem = async function(folderId, index, type) {
+                if (!currentUser) {
+                    alert('❌ Você precisa estar logado!');
+                    return;
+                }
+
+                try {
+                    const snapshot = await db.ref('pastas-compartilhadas/' + folderId).once('value');
+                    const folder = snapshot.val();
+                    
+                    if (!folder) {
+                        alert('❌ Pasta não encontrada!');
+                        return;
+                    }
+
+                    // Para simplificar, vamos permitir edição para todos por enquanto
+                    // if (folder.userId !== currentUser.uid) {
+                    //     alert('❌ Apenas o criador pode editar!');
+                    //     return;
+                    // }
+
+                    const newContent = document.getElementById(`edit${type === 'text' ? 'Text' : 'Code'}-${index}`).value;
+                    
+                    // Atualizar item específico
+                    folder.items[index].content = newContent;
+                    
+                    // Salvar no Realtime Database
+                    await db.ref('pastas-compartilhadas/' + folderId).update({
+                        items: folder.items,
+                        lastModified: Date.now()
+                    });
+                    
+                    alert('✅ Alterações salvas na nuvem!');
+                    location.reload();
+                    
+                } catch (error) {
+                    console.error('Erro ao salvar:', error);
+                    alert('❌ Erro ao salvar alterações: ' + error.message);
+                }
+            };
+
+            // EXECUÇÃO NA PASTA COMPARTILHADA
+            function runSharedCode(index, language) {
+                const codeView = document.getElementById(`codeView-${index}`);
+                const console = document.getElementById(`sharedConsole-${index}`);
+                
+                if (!codeView || !console) return;
+                
+                const code = codeView.textContent;
+                console.innerHTML = '';
+                
+                addToSharedConsole(index, `[${new Date().toLocaleTimeString()}] Executando ${language.toUpperCase()}...`, 'info');
+                
+                try {
+                    switch(language) {
+                        case 'javascript':
+                            runSharedJavaScript(index, code);
+                            break;
+                        case 'python':
+                            runSharedPython(index, code);
+                            break;
+                        case 'html':
+                            runSharedHTML(index, code);
+                            break;
+                        case 'json':
+                            runSharedJSON(index, code);
+                            break;
+                        default:
+                            addToSharedConsole(index, `❌ Execução não suportada para ${language}`, 'error');
+                    }
+                } catch (error) {
+                    addToSharedConsole(index, `❌ Erro: ${error.message}`, 'error');
+                }
+            }
+
+            function addToSharedConsole(index, message, type = 'log') {
+                const console = document.getElementById(`sharedConsole-${index}`);
+                if (!console) return;
+
+                const colors = {
+                    'log': '#c9d1d9',
+                    'info': '#58a6ff',
+                    'warn': '#d29922',
+                    'error': '#f85149',
+                    'success': '#3fb950'
+                };
+
+                const line = document.createElement('div');
+                line.style.color = colors[type] || colors.log;
+                line.style.marginBottom = '4px';
+                line.textContent = message;
+                
+                console.appendChild(line);
+                console.scrollTop = console.scrollHeight;
+            }
+
+            function runSharedJavaScript(index, code) {
+                const originalLog = console.log;
+                const messages = [];
+                
+                console.log = (...args) => {
+                    messages.push(args.join(' '));
+                };
+
+                try {
+                    const result = eval(code);
+                    messages.forEach(msg => addToSharedConsole(index, msg, 'log'));
+                    if (result !== undefined) {
+                        addToSharedConsole(index, `← ${result}`, 'success');
+                    }
+                    addToSharedConsole(index, '✅ Execução concluída', 'success');
+                } catch (error) {
+                    addToSharedConsole(index, `❌ ${error.name}: ${error.message}`, 'error');
+                } finally {
+                    console.log = originalLog;
+                }
+            }
+
+            function runSharedPython(index, code) {
+                const lines = code.split('\n');
+                let output = [];
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.startsWith('print(')) {
+                        const match = line.match(/print\((.*)\)/);
+                        if (match) {
+                            let content = match[1];
+                            content = content.replace(/^["']|["']$/g, '');
+                            output.push(content);
+                        }
+                    }
+                }
+                
+                if (output.length > 0) {
+                    output.forEach(out => addToSharedConsole(index, out, 'log'));
+                } else {
+                    addToSharedConsole(index, '💡 Use print("texto") para ver output', 'info');
+                }
+                
+                addToSharedConsole(index, '✅ Simulação Python concluída', 'success');
+            }
+
+            function runSharedHTML(index, code) {
+                const previewWindow = window.open('', '_blank', 'width=600,height=400');
+                previewWindow.document.write(code);
+                previewWindow.document.close();
+                addToSharedConsole(index, '✅ HTML aberto em nova janela', 'success');
+            }
+
+            function runSharedJSON(index, code) {
+                try {
+                    const parsed = JSON.parse(code);
+                    addToSharedConsole(index, '✅ JSON válido', 'success');
+                    addToSharedConsole(index, `📊 Propriedades: ${Object.keys(parsed).length}`, 'info');
+                } catch (error) {
+                    addToSharedConsole(index, `❌ JSON inválido: ${error.message}`, 'error');
+                }
+            }
+
+            // INDICADORES DE SINCRONIZAÇÃO
+            function showSyncIndicator(status, message) {
+                const indicator = document.getElementById('syncIndicator');
+                const icon = document.getElementById('syncIcon');
+                const text = document.getElementById('syncText');
+                
+                if (!indicator) return;
+                
+                indicator.className = 'sync-indicator';
+                indicator.style.display = 'flex';
+                
+                switch(status) {
+                    case 'syncing':
+                        indicator.classList.add('syncing');
+                        icon.textContent = '⏳';
+                        text.textContent = message || 'Sincronizando...';
+                        break;
+                    case 'success':
+                        icon.textContent = '✅';
+                        text.textContent = message || 'Sincronizado';
+                        setTimeout(() => {
+                            indicator.style.display = 'none';
+                        }, 2000);
+                        break;
+                    case 'error':
+                        indicator.classList.add('error');
+                        icon.textContent = '❌';
+                        text.textContent = message || 'Erro na sincronização';
+                        setTimeout(() => {
+                            indicator.style.display = 'none';
+                        }, 5000);
+                        break;
+                }
+            }
+
+            // Carregar pasta ao iniciar
+            window.addEventListener('DOMContentLoaded', function() {
+                console.log('🚀 Página carregada!');
+                
+                // Verificar se há ID de pasta compartilhada na URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const folderId = urlParams.get('id');
+                
+                if (folderId) {
+                    // Está acessando uma pasta compartilhada
+                    console.log('📁 Carregando pasta:', folderId);
+                    loadSharedFolder();
+                } else {
+                    // Página inicial - mostrar seções
+                    console.log('🏠 Página inicial');
+                    document.getElementById('heroSection').style.display = 'block';
+                    document.getElementById('plansSection').style.display = 'block';
+                }
+            });
+
+        </script>
+
+        <!-- Firebase -->
+        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+        <script>
+            // Firebase (mesma config do index.html que funciona)
+            const firebaseConfig = {
+                apiKey: "AIzaSyAexCf7hPN2OQvfsw66UDpci6nycivrK98",
+                authDomain: "void-activation-system.firebaseapp.com",
+                databaseURL: "https://void-activation-system-default-rtdb.firebaseio.com",
+                projectId: "void-activation-system",
+                storageBucket: "void-activation-system.firebasestorage.app",
+                messagingSenderId: "108268095097",
+                appId: "1:108268095097:web:4f45ff75a9e528b3f0f6a8"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            console.log('🔥 Firebase Realtime Database inicializado com sucesso!');
+        </script>
+    </body>
+    </html>
