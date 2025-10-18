@@ -1026,8 +1026,8 @@
         </div>        <div class="container">
             <!-- Hero Section -->
             <div class="hero" id="heroSection">
-                <h1>Colabore em Tempo Real</h1>
-                <p>Crie pastas compartilhadas, edite documentos e códigos juntos. Simples, rápido e colaborativo.</p>
+                <h1>Colabore e Compile em Tempo Real</h1>
+                <p>Crie pastas compartilhadas, edite códigos e compile juntos. Todos os planos incluem compilação JavaScript, Python, HTML e mais!</p>
                 <div class="hero-buttons">
                     <button class="btn-primary" onclick="showCreateSection()">Criar Pasta Grátis</button>
                     <button class="btn-secondary" onclick="document.getElementById('plansSection').scrollIntoView({ behavior: 'smooth' })">Ver Planos</button>
@@ -1041,13 +1041,14 @@
                         <h3>Grátis</h3>
                         <div class="plan-price">R$ 0</div>
                         <ul class="plan-features">
-                            <li>Até 100MB por pasta</li>
+                            <li>Até 3 itens por pasta</li>
                             <li>Válido por 24 horas</li>
-                            <li>Upload de arquivos</li>
-                            <li>Edição de texto</li>
+                            <li>Editor de código + console</li>
+                            <li>Compilação JavaScript/Python</li>
+                            <li>Sincronização em tempo real</li>
                             <li>Link compartilhável</li>
                         </ul>
-                        <button class="btn-select" onclick="selectPlan('free', 100)">Começar Grátis</button>
+                        <button class="btn-select" onclick="selectPlan('free', 3)">Começar Grátis</button>
                     </div>
 
                     <div class="plan-card popular" data-plan="pro">
@@ -1055,29 +1056,29 @@
                         <h3>Pro</h3>
                         <div class="plan-price">R$ 9,90<span>/mês</span></div>
                         <ul class="plan-features">
-                            <li>Até 1GB por pasta</li>
+                            <li>Até 15 itens por pasta</li>
                             <li>Válido por 7 dias</li>
-                            <li>Editor de código colaborativo</li>
-                            <li>Syntax highlighting</li>
+                            <li>Todas as linguagens suportadas</li>
                             <li>Senha de proteção</li>
                             <li>10 pastas simultâneas</li>
+                            <li>Exportar código</li>
                         </ul>
-                        <button class="btn-select" onclick="selectPlan('pro', 1024)">Assinar Pro</button>
+                        <button class="btn-select" onclick="selectPlan('pro', 15)">Assinar Pro</button>
                     </div>
 
                     <div class="plan-card" data-plan="premium">
                         <h3>Premium</h3>
                         <div class="plan-price">R$ 19,90<span>/mês</span></div>
                         <ul class="plan-features">
-                            <li>Até 5GB por pasta</li>
-                            <li>Válido por 30 dias</li>
-                            <li>Tudo do Pro +</li>
-                            <li>Colaboração em tempo real</li>
+                            <li>Itens ilimitados por pasta</li>
+                            <li><strong>Nunca expira (enquanto pago)</strong></li>
                             <li>Histórico de versões</li>
                             <li>Pastas ilimitadas</li>
-                            <li>Suporte prioritário</li>
+                            <li>Backup automático</li>
+                            <li>Suporte prioritário 24/7</li>
+                            <li>Cancela? 24h para salvar tudo</li>
                         </ul>
-                        <button class="btn-select" onclick="selectPlan('premium', 5120)">Assinar Premium</button>
+                        <button class="btn-select" onclick="selectPlan('premium', 999)">Assinar Premium</button>
                     </div>
                 </div>
             </section>
@@ -1225,24 +1226,25 @@
             const planConfigs = {
                 free: {
                     name: 'Grátis',
-                    maxSize: 100,
+                    maxItems: 3,
                     validity: '24 horas',
                     validityHours: 24,
                     hasPassword: false
                 },
                 pro: {
-                    name: 'Pro',
-                    maxSize: 1024,
+                    name: 'Pro', 
+                    maxItems: 15,
                     validity: '7 dias',
                     validityHours: 168,
                     hasPassword: true
                 },
                 premium: {
                     name: 'Premium',
-                    maxSize: 5120,
-                    validity: '30 dias',
-                    validityHours: 720,
-                    hasPassword: true
+                    maxItems: 999,
+                    validity: 'Nunca expira',
+                    validityHours: 365 * 24 * 10, // 10 anos 
+                    hasPassword: true,
+                    neverExpires: true
                 }
             };
 
@@ -1251,11 +1253,11 @@
                 // Se não tem plano selecionado, selecionar o grátis automaticamente
                 if (!currentPlan) {
                     currentPlan = 'free';
-                    maxSize = 100;
+                    maxSize = 3; // 3 itens para plano grátis
                     
                     const config = planConfigs['free'];
                     document.getElementById('selectedPlan').textContent = config.name;
-                    document.getElementById('sizeLimit').textContent = '100 MB';
+                    document.getElementById('sizeLimit').textContent = '3 itens';
                     document.getElementById('validity').textContent = config.validity;
                     document.getElementById('passwordSection').style.display = 'none';
                 }
@@ -1281,6 +1283,13 @@
 
             // Adicionar novo item à pasta
             function addNewItem(type) {
+                // Verificar limite de itens
+                if (folderItems.length >= maxSize) {
+                    const config = planConfigs[currentPlan];
+                    alert(`❌ Limite atingido! Plano ${config.name} permite até ${maxSize} itens por pasta.`);
+                    return;
+                }
+                
                 const itemId = itemIdCounter++;
                 
                 const item = {
@@ -1817,14 +1826,14 @@
             }
 
             // Selecionar plano
-            function selectPlan(planType, sizeLimit) {
+            function selectPlan(planType, maxItems) {
                 currentPlan = planType;
-                maxSize = sizeLimit;
+                maxSize = maxItems; // Agora representa max items, não size
                 
                 const config = planConfigs[planType];
                 
                 document.getElementById('selectedPlan').textContent = config.name;
-                document.getElementById('sizeLimit').textContent = `${sizeLimit >= 1024 ? (sizeLimit/1024).toFixed(1) + ' GB' : sizeLimit + ' MB'}`;
+                document.getElementById('sizeLimit').textContent = maxItems === 999 ? 'Ilimitados' : `${maxItems} itens`;
                 document.getElementById('validity').textContent = config.validity;
                 
                 const passwordSection = document.getElementById('passwordSection');
